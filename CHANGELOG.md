@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.9
+
+### `@sensolus/snt-agent-kit`
+
+- **`SntMap` — `mapboxKey` and `locationiqKey` are now optional.** When `locationiqKey` is omitted, street tiles fall back to OpenStreetMap. When `mapboxKey` is omitted, the satellite layer + toggle are hidden (OSM has no free satellite equivalent). This lets the widget-showcase and other keyless setups render maps without any provider account.
+
+### `@sensolus/create-snt-agent-app`
+
+- Version bump only (publish parity).
+
 ## 0.7.8
 
 ### `@sensolus/snt-agent-kit`

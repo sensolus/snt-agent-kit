@@ -10,8 +10,10 @@
  * bag" API, see <SntDeviceMap>.
  *
  * Props:
- *   mapboxKey            - Mapbox token for satellite tiles (required)
- *   locationiqKey        - LocationIQ key for street tiles (required)
+ *   mapboxKey            - Mapbox token for satellite tiles. Optional — when
+ *                          omitted, the satellite layer + toggle are hidden.
+ *   locationiqKey        - LocationIQ key for street tiles. Optional — when
+ *                          omitted, falls back to OpenStreetMap tiles.
  *   height               - default '500px'
  *   width                - default '100%'
  *   center               - [lat, lng], default [50, 10]
@@ -77,9 +79,6 @@ export function SntMap({
   onMapReady,
   children,
 }) {
-  if (!mapboxKey) throw new Error('SntMap: mapboxKey prop is required')
-  if (!locationiqKey) throw new Error('SntMap: locationiqKey prop is required')
-
   const { api } = useSntUi()
 
   const containerRef = useRef(null)
@@ -94,8 +93,13 @@ export function SntMap({
   const [showShortLayer, setShowShortLayer] = useState(false)
   const [layerToggles, setLayerToggles] = useState([])
 
-  const tileStreets = `https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=${locationiqKey}`
-  const tileSatellite = `https://api.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token=${mapboxKey}`
+  const hasSatellite = Boolean(mapboxKey)
+  const tileStreets = locationiqKey
+    ? `https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=${locationiqKey}`
+    : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+  const tileSatellite = hasSatellite
+    ? `https://api.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token=${mapboxKey}`
+    : null
 
   // Initialize the Leaflet map once.
   useEffect(() => {
@@ -103,17 +107,17 @@ export function SntMap({
       subdomains: 'abc',
       minZoom: 2,
       maxZoom: 22,
-      maxNativeZoom: 20,
-    })
-
-    const satellite = L.tileLayer(tileSatellite, {
-      minZoom: 2,
-      maxZoom: 22,
-      maxNativeZoom: 20,
+      maxNativeZoom: locationiqKey ? 20 : 19,
     })
 
     streetLayerRef.current = streets
-    satelliteLayerRef.current = satellite
+    if (tileSatellite) {
+      satelliteLayerRef.current = L.tileLayer(tileSatellite, {
+        minZoom: 2,
+        maxZoom: 22,
+        maxNativeZoom: 20,
+      })
+    }
 
     const leafletMap = L.map(containerRef.current, {
       center,
@@ -230,6 +234,7 @@ export function SntMap({
     if (!map) return
     const streets = streetLayerRef.current
     const satellite = satelliteLayerRef.current
+    if (!satellite) return
 
     if (activeLayer === 'satellite') {
       if (map.hasLayer(streets)) map.removeLayer(streets)
@@ -278,7 +283,7 @@ export function SntMap({
         </SntMapContext.Provider>
       )}
 
-      {showSatelliteToggle && (
+      {showSatelliteToggle && hasSatellite && (
         <div
           style={{ position: 'absolute', bottom: 30, left: 10, zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}
           onMouseEnter={handleMouseEnter}

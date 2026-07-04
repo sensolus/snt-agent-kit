@@ -28,19 +28,18 @@ No test suite, no lint script at the repo root. Verification = `npm run build` s
 
 ## Release / publishing
 
-Jenkins (`Jenkinsfile` at the repo root) runs `npm publish` on BOTH packages whenever a build runs with `PUBLISH=true`. There is no per-package change detection — npm registries reject re-publishing an existing version with `403`. Therefore:
+Jenkins (`Jenkinsfile` at the repo root) runs `npm publish` on BOTH packages whenever a build runs with `PUBLISH=true`. There is no per-package change detection — npm registries reject re-publishing an existing version with `403`.
 
-**Always bump BOTH `package.json` versions on every release**, even if only one package changed. The unchanged one needs at least a patch bump or its `npm publish` will 403 and fail the CI run.
+**Every code change to a publishable package requires bumping BOTH `package.json` versions in the same commit** — not batched, not "at release time". If you touched either package, bump both:
 
-Bump targets:
 - `packages/snt-agent-kit/package.json`
 - `packages/create-snt-agent-app/package.json`
 
+The package you didn't touch still needs at least a patch bump — otherwise its `npm publish` will 403 and fail the CI run, blocking the whole release. Miss this and the branch can't ship.
+
 `packages/widget-showcase/package.json` is `"private": true` and is **not** published — leave its version alone.
 
-After bumping, rebuild (`npm run build`) so `packages/snt-agent-kit/dist/` matches the new version on disk.
-
-Keep `CHANGELOG.md` (repo root) in sync — group changes under one heading per release, with subsections for each package.
+Also update `CHANGELOG.md` (repo root) in the same commit — one heading per version (matching the kit's version), with a subsection per package. Use `- Version bump only (publish parity).` for the package that didn't change.
 
 ## Kit architecture
 
