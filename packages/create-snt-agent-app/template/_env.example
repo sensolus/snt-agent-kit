@@ -1,0 +1,14 @@
+# Copy to .env and fill in — never commit the real .env (it is gitignored).
+#
+# Map provider keys (get them from your team vault). Required for SntMap:
+# the Flask backend reads them at request time and serves them to the
+# frontend via /api/config, so one Docker image works across environments.
+MAPBOX_KEY=
+LOCATIONIQ_KEY=
+
+# PostgreSQL connection (defaults shown; see README "Database Configuration")
+#DB_HOST=localhost
+#DB_PORT=5432
+#DB_NAME={{APP_NAME}}
+#DB_USER=snt
+#DB_PASSWORD=snt

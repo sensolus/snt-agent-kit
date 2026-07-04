@@ -1,0 +1,24 @@
+{
+  "name": "@sensolus/widget-showcase",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Private dev playground that renders every Snt* widget. Lives in the monorepo so kit edits HMR straight into a running browser. Not published.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@sensolus/snt-agent-kit": "*",
+    "leaflet": "^1.9.4",
+    "leaflet-control-geocoder": "^3.3.1",
+    "leaflet.markercluster": "^1.5.3",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.2",
+    "vite": "^7.3.1"
+  }
+}

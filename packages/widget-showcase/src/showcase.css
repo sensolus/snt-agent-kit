@@ -1,0 +1,358 @@
+/* Showcase-only styles. The .page-root / .page-body / .summary-stats-row
+   rules are copied from the sample app so the showcase visually matches a
+   real page. The .showcase-* rules style the playground chrome (sections,
+   index, examples, colour grid). */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--snt-font-family);
+  font-weight: 400;
+  background-color: var(--snt-bg-zebra);
+}
+
+.page-root {
+  width: 100%;
+  background-color: var(--snt-bg-zebra, #F9FAFA);
+  min-height: 100vh;
+  padding: 24px 16px 16px;
+}
+
+.page-body {
+  padding: 24px 0px;
+}
+
+.page-body .snt-card {
+  margin-bottom: 24px;
+}
+
+.page-body .snt-card:last-child {
+  margin-bottom: 0;
+}
+
+.summary-stats-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.summary-stats-row .summary-stat {
+  flex: 1;
+  min-width: 150px;
+  border-radius: var(--snt-border-radius-lg);
+  padding: 16px 20px;
+  text-align: center;
+}
+
+.summary-stats-row .summary-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--snt-blue-darkest);
+  display: block;
+}
+
+.summary-stats-row .summary-label {
+  font-size: 0.875rem;
+  color: var(--snt-grey);
+  display: block;
+  margin-top: 4px;
+}
+
+.summary-stats-row .summary-stat-info .summary-value {
+  color: var(--snt-ui-selected);
+}
+
+.summary-stats-row .summary-stat-success .summary-value {
+  color: var(--snt-green);
+}
+
+.summary-stats-row .summary-stat-warning .summary-value {
+  color: var(--snt-yellow-dark, #CC9900);
+}
+
+.summary-stats-row .summary-stat-danger .summary-value {
+  color: var(--snt-red);
+}
+
+/* Widget showcase chrome */
+.widget-showcase > .snt-card {
+  margin-bottom: 24px;
+}
+
+.showcase-section {
+  scroll-margin-top: 16px;
+}
+
+/* Horizontal divider + symmetric spacing between consecutive sections. The
+ * first section has no rule above it (its previous sibling is the intro card). */
+.showcase-section + .showcase-section {
+  margin-top: 48px;
+  padding-top: 48px;
+  border-top: 1px solid var(--snt-grey-lightest);
+}
+
+/* Showcase-only: drop the SntSection white-panel chrome so each widget demo
+ * sits on the page background. The kit's .snt-section (a real card-like panel)
+ * is unchanged — this override is scoped to the showcase. Sections are
+ * separated by their title + spacing instead of a box. */
+.showcase-section .snt-section {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+}
+
+/* 12-column page split: Index sidebar (2 cols) + content (10 cols). */
+.showcase-layout {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.showcase-index-col {
+  grid-column: span 2;
+  position: sticky;
+  top: 16px;
+}
+
+.showcase-main {
+  grid-column: span 10;
+  min-width: 0; /* let wide content (tables, maps) shrink instead of overflowing */
+}
+
+.showcase-index {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.showcase-index a {
+  color: var(--snt-blue);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.showcase-index a:hover {
+  text-decoration: underline;
+}
+
+.showcase-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Rule demo: cards in a row are equal height (tallest wins). */
+.showcase-equal-row {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.showcase-equal-row > .snt-card {
+  flex: 1;
+  /* The page rule gives cards a bottom margin (zeroed on :last-child). In a
+   * stretch row that asymmetric margin makes the visible boxes unequal — reset
+   * it so align-items: stretch produces truly equal heights. */
+  margin-bottom: 0;
+}
+
+/* Examples section: frame each example and give them room to breathe. */
+#examples .showcase-section-body {
+  gap: 48px;
+}
+
+#examples .showcase-example {
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius-lg);
+  padding: 24px;
+}
+
+/* Examples: two equal columns side by side (e.g. map + table). */
+.showcase-split {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* Examples: a narrow filter side-rail + content (e.g. checkbox list + table).
+ * Filters are framed (white panel, rule 10) and stay a narrow rail (rule 13);
+ * the content area takes the rest. */
+.showcase-filter-split {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.showcase-filter-panel {
+  flex: 0 0 220px;
+  background: var(--snt-white);
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius-lg);
+  padding: 16px;
+}
+
+.showcase-filter-split > .snt-table-container {
+  flex: 1;
+  min-width: 0;
+}
+
+.showcase-split > * {
+  flex: 1;
+  min-width: 0; /* let tables/maps shrink instead of overflowing the column */
+}
+
+/* Rule demo: label + auto-width field (min 100px), right-aligned label. */
+.showcase-field-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.showcase-field-row > label {
+  width: 120px;
+  text-align: right;
+  color: var(--snt-grey);
+  font-size: 14px;
+}
+
+.showcase-field-row > .showcase-field {
+  flex: 0 1 auto;   /* size to the field's natural width, not full-bleed */
+  min-width: 100px; /* …but never narrower than 100px */
+}
+
+.showcase-example {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.showcase-example-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--snt-grey);
+}
+
+.showcase-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.showcase-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 320px;
+}
+
+.showcase-grid-cell {
+  background: var(--snt-bg-zebra);
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius);
+  padding: 16px;
+  text-align: center;
+  color: var(--snt-grey);
+  font-size: 13px;
+}
+
+.showcase-page-header-demo {
+  background: var(--snt-bg-zebra);
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius);
+  padding: 16px 20px;
+}
+
+.showcase-page-header-demo .snt-page-header {
+  margin-bottom: 0;
+}
+
+/* Mock page outline for the Page layout showcase section: shows the 24/16/16
+   page-root padding as a dashed rule so the spec is visually legible. */
+.showcase-page-layout-demo {
+  border: 1px dashed var(--snt-grey-light);
+  border-radius: var(--snt-border-radius);
+  padding: 24px 16px 16px;
+  background: var(--snt-bg-zebra);
+}
+
+.showcase-page-layout-demo-inner {
+  background: var(--snt-white);
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius);
+  padding: 16px;
+  color: var(--snt-grey);
+  font-size: 13px;
+  text-align: center;
+}
+
+.showcase-sidepanel-demo {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  min-height: 240px;
+}
+
+.showcase-sidepanel-content {
+  flex: 1;
+  background: var(--snt-bg-zebra);
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius);
+  padding: 16px;
+  color: var(--snt-grey);
+}
+
+.showcase-color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.showcase-color-swatch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius);
+  background: var(--snt-white);
+}
+
+.showcase-color-chip {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid var(--snt-grey-lightest);
+  flex-shrink: 0;
+}
+
+.showcase-color-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.showcase-color-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--snt-blue-darkest);
+}
+
+.showcase-color-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--snt-grey);
+}

@@ -1,0 +1,69 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Repository layout
+
+npm workspaces monorepo with two published packages and one private dev playground:
+
+| Path | Published as | Role |
+|---|---|---|
+| `packages/snt-agent-kit/` | `@sensolus/snt-agent-kit` | The library: `Snt*` widgets, theme CSS, `SntColors`, i18n framework, `SntMap` + layer components. Locked source — apps import, never copy. |
+| `packages/create-snt-agent-app/` | `@sensolus/create-snt-agent-app` | npm `create-` scaffolder. Generates a new app from `template/` (Vite + React frontend + Flask API-proxy backend). |
+| `packages/widget-showcase/` | *(private — `"private": true`, never published)* | Dev playground that renders every `Snt*` widget. Vite-aliases `@sensolus/snt-agent-kit` to the kit's `src/` (see [packages/widget-showcase/vite.config.js](packages/widget-showcase/vite.config.js)), so kit edits HMR straight into the browser with no `npm run build` cycle. Run with `npm run showcase` (port 3100). Map keys come from `packages/widget-showcase/.env` (gitignored). Needs Node ≥20.19 — Vite 7. |
+
+Note: `packages/create-snt-agent-app/template/` is the *seed* copied into a generated app. Its `CLAUDE.md`, `Jenkinsfile`, `package.json`, etc. are NOT the monorepo's — they ship into scaffolded apps. Don't conflate them with the repo-level files at the root.
+
+## Commands
+
+```bash
+npm install                          # install all workspaces
+npm run build                        # build the kit only (vite lib build → packages/snt-agent-kit/dist/)
+npm run showcase                     # widget playground at http://localhost:3100/ (HMRs kit src)
+npm run publish:kit                  # manual publish of @sensolus/snt-agent-kit (needs NPM_TOKEN)
+npm run publish:create               # manual publish of @sensolus/create-snt-agent-app
+```
+
+No test suite, no lint script at the repo root. Verification = `npm run build` succeeds.
+
+## Release / publishing
+
+Jenkins (`Jenkinsfile` at the repo root) runs `npm publish` on BOTH packages whenever a build runs with `PUBLISH=true`. There is no per-package change detection — npm registries reject re-publishing an existing version with `403`. Therefore:
+
+**Always bump BOTH `package.json` versions on every release**, even if only one package changed. The unchanged one needs at least a patch bump or its `npm publish` will 403 and fail the CI run.
+
+Bump targets:
+- `packages/snt-agent-kit/package.json`
+- `packages/create-snt-agent-app/package.json`
+
+`packages/widget-showcase/package.json` is `"private": true` and is **not** published — leave its version alone.
+
+After bumping, rebuild (`npm run build`) so `packages/snt-agent-kit/dist/` matches the new version on disk.
+
+Keep `CHANGELOG.md` (repo root) in sync — group changes under one heading per release, with subsections for each package.
+
+## Kit architecture
+
+Public surface lives in `packages/snt-agent-kit/src/index.js`. It re-exports:
+
+- `SntUiProvider` / `useSntUi` — injects the backend `api` adapter and `navigate` fn. Apps wrap their tree in this; widgets that hit the API read from `useSntUi().api`.
+- `widgets/index.js` — all `Snt*` widgets, including the map module.
+- `i18n/index.js` — `LocaleProvider`, `useLocale`, formatters.
+
+Map module (`src/widgets/map/`) is the most layered piece. `SntMap` is a thin base primitive (tiles, geocoder, layers panel); domain layers like `SntGeozoneLayer`, `SntDeviceLayer`, `SntMarkerClusterLayer` opt in via `useSntMap()`. The bottom-left "Layers" chip control is populated through `useLayerToggle({ id, label, icon?, defaultVisible?, visible?, onChange? })` — built-in layers (`SntGeozoneLayer`) dogfood the same hook the docs tell consumers to use.
+
+When adding/modifying a widget:
+- Wire any backend call through `useSntUi().api`, never `fetch` directly.
+- For text shown to users, add a translation key under `src/i18n/translations/` (en is the fallback) and use `useLocale().t(...)`.
+- New widgets must be exported from `src/widgets/index.js` to reach consumers.
+
+## Build artifacts
+
+`packages/snt-agent-kit/dist/` is gitignored — it's built into the npm tarball at publish time (kit `package.json` runs `prepublishOnly: vite build` and ships `files: ["dist", "docs"]`), so there's nothing to keep in sync in the repo. Vite externalizes `react`, `react-dom`, `react/jsx-runtime`, and `leaflet*` — these stay as peer/regular deps and are resolved by the consuming app's bundler.
+
+## House rules (from README)
+
+- Apps **import** the kit; they never copy widget source.
+- No deep imports (`@sensolus/snt-agent-kit/dist/...`) — generated apps' ESLint blocks this.
+- No re-declaring `Snt*` components in app code — ESLint blocks this too.
+- Customization happens via widget slots/render props or a PR to this repo. **No eject.**

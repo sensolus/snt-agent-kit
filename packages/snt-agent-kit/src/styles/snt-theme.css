@@ -1,0 +1,2268 @@
+/**
+ * Sensolus Theme - Official Color Palette and Base Styles
+ * ============================================================================
+ * Import this file to get consistent Sensolus branding in your app.
+ * Colors are available as CSS custom properties (--snt-*).
+ *
+ * Source: /sensolus/work/baseline/src/styles/_colors.scss
+ * ============================================================================
+ */
+
+:root {
+  /* ============================================================================
+   * BLUE
+   * ============================================================================ */
+  --snt-blue-darkest: #212851;        /* Sensolus_Blue_Darkest */
+  --snt-blue-darker: #005B81;         /* Sensolus_Blue_Darker */
+  --snt-blue: #0071A1;                /* Sensolus_Blue */
+  --snt-blue-light: #A0C3D8;          /* Sensolus_Blue_light */
+  --snt-blue-lighter: #C2D7E4;        /* Sensolus_Blue_lighter */
+  --snt-blue-lightest: #DAE5EC;       /* Sensolus_Blue_lightest */
+
+  /* ============================================================================
+   * BLACK / GREY
+   * ============================================================================ */
+  --snt-black: #1D283C;               /* Sensolus_Black */
+  --snt-grey-darker: #424B59;         /* Sensolus_Grey_Darker */
+  --snt-grey: #535E6F;                /* Sensolus_Grey */
+  --snt-grey-light: #B8BFCA;          /* Sensolus_Grey_Light */
+  --snt-grey-lighter: #D5D9E0;        /* Sensolus_Grey_Lighter */
+  --snt-grey-lightest: #DEE4E6;       /* Sensolus_Grey_Lightest */
+
+  /* ============================================================================
+   * BACKGROUNDS / WHITE / PURPLE
+   * ============================================================================ */
+  --snt-bg-darkgrey: #E7E7E1;         /* Sensolus_BG_Darkgrey */
+  --snt-bg-lightgrey: #EAEEF1;        /* Sensolus_BG_Lightgrey */
+  --snt-bg-lightblue: #EFF3F4;        /* Sensolus_BG_Lightblue */
+  --snt-bg-zebra: #F9FAFA;            /* Sensolus_BG_Zebra */
+  --snt-white: #FFFFFF;               /* Sensolus_White */
+  --snt-purple: #834CAE;              /* Sensolus_Purple (AI accent) */
+  --snt-purple-light: #680282;        /* Sensolus_Purple_Light */
+
+  /* ============================================================================
+   * YELLOW / GREENS / PINK / BROWN
+   * ============================================================================ */
+  --snt-yellow: #FFCC66;              /* Sensolus_Yellow */
+  --snt-dark-green: #009D9D;          /* Sensolus_Dark_Green */
+  --snt-ui-green: #62CC86;            /* Sensolus_UI_Green */
+  --snt-green: #39CB99;               /* Sensolus_Green */
+  --snt-pink: #F57DFF;                /* Sensolus_Pink */
+  --snt-brown: #543200;               /* Sensolus_Brown */
+
+  /* ============================================================================
+   * RED / ORANGE TONES
+   * ============================================================================ */
+  --snt-red: #E00000;                 /* Sensolus_Red */
+  --snt-persimmon: #E86124;           /* Sensolus_Persimmon */
+  --snt-salmon: #F68483;              /* Sensolus_Salmon */
+  --snt-blush: #F0D5CA;               /* Sensolus_Blush */
+  --snt-orange: #FFA858;              /* Sensolus_Orange */
+  --snt-terracotta: #950000;          /* Sensolus_Terracotta */
+
+  /* ============================================================================
+   * UI / MENU / MAP
+   * ============================================================================ */
+  --snt-blue-menu: #4E5471;           /* Sensolus_Blue_Menu */
+  --snt-blue-menu-selected: #707B96;  /* Sensolus_Blue_Menu_Selected */
+  --snt-ui-selected: #00A6ED;         /* Sensolus_UI_Selected */
+  --snt-emerald: #006565;             /* Sensolus_Emerald */
+  --snt-pink-dark: #A900D5;           /* Sensolus_Pink_Dark */
+  --snt-geozone-green: #37A857;       /* Sensolus_Geozone_Green */
+
+  /* ============================================================================
+   * SEMANTIC ALIASES - Use these for common patterns
+   * ============================================================================ */
+  --snt-color-primary: var(--snt-blue-darkest);
+  --snt-color-primary-hover: var(--snt-blue-darker);
+  --snt-color-link: var(--snt-blue);
+  --snt-color-link-hover: var(--snt-blue-darker);
+  --snt-color-success: var(--snt-green);
+  --snt-color-warning: var(--snt-yellow);
+  --snt-color-danger: var(--snt-red);
+  --snt-color-info: var(--snt-ui-selected);
+
+  --snt-color-text-primary: var(--snt-blue-darkest);
+  --snt-color-text-secondary: var(--snt-grey);
+  --snt-color-text-muted: var(--snt-grey-light);
+
+  --snt-color-border: var(--snt-grey-light);
+  --snt-color-border-light: var(--snt-grey-lightest);
+
+  --snt-color-bg-page: var(--snt-bg-lightblue);
+  --snt-color-bg-card: var(--snt-white);
+  --snt-color-bg-zebra: var(--snt-bg-zebra);
+
+  /* ============================================================================
+   * TRANSPARENCY VARIANTS
+   * ============================================================================ */
+  --snt-white-05: rgba(255, 255, 255, 0.05);
+  --snt-white-15: rgba(255, 255, 255, 0.15);
+  --snt-white-20: rgba(255, 255, 255, 0.2);
+  --snt-white-30: rgba(255, 255, 255, 0.3);
+  --snt-white-60: rgba(255, 255, 255, 0.6);
+  --snt-white-80: rgba(255, 255, 255, 0.8);
+
+  --snt-black-05: rgba(0, 0, 0, 0.05);
+  --snt-black-10: rgba(0, 0, 0, 0.1);
+  --snt-black-15: rgba(0, 0, 0, 0.15);
+  --snt-black-30: rgba(0, 0, 0, 0.3);
+
+  --snt-blue-focus: rgba(0, 113, 161, 0.25);
+  --snt-dark-blue-focus: rgba(33, 40, 81, 0.5);
+
+  /* ============================================================================
+   * TYPOGRAPHY
+   * ============================================================================ */
+  --snt-font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --snt-font-size-base: 14px;
+  --snt-font-size-sm: 12px;
+  --snt-font-size-lg: 16px;
+  --snt-line-height: 1.5;
+
+  /* Heading scale (h1 matches SntPageHeader at 24px, stepping down to body) */
+  --snt-font-size-h1: 24px;
+  --snt-font-size-h2: 20px;
+  --snt-font-size-h3: 16px;
+  --snt-font-size-h4: 14px;
+
+  /* ============================================================================
+   * SPACING & SIZING
+   * ============================================================================ */
+  --snt-border-radius: 4px;
+  --snt-border-radius-lg: 8px;
+  --snt-spacing-xs: 4px;
+  --snt-spacing-sm: 8px;
+  --snt-spacing-md: 16px;
+  --snt-spacing-lg: 24px;
+}
+
+/* ============================================================================
+ * BASE STYLES - Apply Sensolus defaults
+ * ============================================================================ */
+
+body.snt-theme {
+  font-family: var(--snt-font-family);
+  font-size: var(--snt-font-size-base);
+  font-weight: 400;
+  line-height: var(--snt-line-height);
+  color: var(--snt-color-text-primary);
+  background-color: var(--snt-color-bg-page);
+}
+
+/* Heading hierarchy & paragraphs — give raw h1-h4 / p a clear, consistent
+ * Sensolus look so app content reads with proper structure without per-page CSS. */
+.snt-theme h1,
+.snt-theme h2,
+.snt-theme h3,
+.snt-theme h4 {
+  margin: 0 0 var(--snt-spacing-sm);
+  color: var(--snt-color-text-primary);
+  font-family: var(--snt-font-family);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.snt-theme h1 {
+  font-size: var(--snt-font-size-h1);
+  font-weight: 700;
+}
+
+.snt-theme h2 {
+  font-size: var(--snt-font-size-h2);
+}
+
+.snt-theme h3 {
+  font-size: var(--snt-font-size-h3);
+}
+
+.snt-theme h4 {
+  font-size: var(--snt-font-size-h4);
+}
+
+.snt-theme p {
+  margin: 0 0 var(--snt-spacing-md);
+  font-size: var(--snt-font-size-base);
+  line-height: var(--snt-line-height);
+  color: var(--snt-color-text-secondary);
+}
+
+.snt-theme p:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================================================
+ * SntButton - Primary button component
+ * Variants: primary, secondary, success, danger, warning, info
+ * ============================================================================ */
+
+.snt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: var(--snt-font-size-base);
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  border-radius: var(--snt-border-radius);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.snt-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Capitalise the first letter of the button label. inline-block is required
+ * for ::first-letter to take effect (it does not apply to inline boxes). */
+.snt-btn-label {
+  display: inline-block;
+}
+
+.snt-btn-label::first-letter {
+  text-transform: uppercase;
+}
+
+/* Default/Secondary variant (grey-light) */
+.snt-btn,
+.snt-btn-secondary {
+  background-color: var(--snt-white);
+  border-color: var(--snt-grey-light);
+  color: var(--snt-blue-darkest);
+}
+
+.snt-btn:hover:not(:disabled),
+.snt-btn-secondary:hover:not(:disabled) {
+  background-color: var(--snt-bg-zebra);
+}
+
+.snt-btn:focus-visible,
+.snt-btn-secondary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--snt-blue-focus);
+}
+
+/* Emphasis variant (dark blue) — use sparingly for the single most important
+ * action on a screen. The white default (.snt-btn-secondary) is the primary,
+ * everyday button. `.snt-btn-primary` is kept as a deprecated alias. */
+.snt-btn-emphasis,
+.snt-btn-primary {
+  background-color: var(--snt-blue-darkest);
+  border-color: var(--snt-blue-darkest);
+  color: var(--snt-white);
+}
+
+.snt-btn-emphasis:hover:not(:disabled),
+.snt-btn-primary:hover:not(:disabled) {
+  background-color: var(--snt-blue-darker);
+  border-color: var(--snt-blue-darker);
+}
+
+.snt-btn-emphasis:focus-visible,
+.snt-btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--snt-dark-blue-focus);
+}
+
+/* Success variant */
+.snt-btn-success {
+  background-color: var(--snt-green);
+  border-color: var(--snt-green);
+  color: var(--snt-white);
+}
+
+.snt-btn-success:hover:not(:disabled) {
+  background-color: var(--snt-dark-green);
+  border-color: var(--snt-dark-green);
+}
+
+/* Danger variant */
+.snt-btn-danger {
+  background-color: var(--snt-red);
+  border-color: var(--snt-red);
+  color: var(--snt-white);
+}
+
+.snt-btn-danger:hover:not(:disabled) {
+  background-color: var(--snt-terracotta);
+  border-color: var(--snt-terracotta);
+}
+
+/* Warning variant */
+.snt-btn-warning {
+  background-color: var(--snt-yellow);
+  border-color: var(--snt-yellow);
+  color: var(--snt-blue-darkest);
+}
+
+.snt-btn-warning:hover:not(:disabled) {
+  background-color: var(--snt-orange);
+  border-color: var(--snt-orange);
+}
+
+/* Info variant */
+.snt-btn-info {
+  background-color: var(--snt-ui-selected);
+  border-color: var(--snt-ui-selected);
+  color: var(--snt-white);
+}
+
+.snt-btn-info:hover:not(:disabled) {
+  background-color: var(--snt-blue);
+  border-color: var(--snt-blue);
+}
+
+/* Delete variant — white button with a 2px red border, red label + delete icon.
+ * Use this for destructive "delete" actions. Padding is trimmed by 1px to offset
+ * the thicker border so the button matches the height of other variants. */
+.snt-btn-delete {
+  background-color: var(--snt-white);
+  border: 2px solid var(--snt-red);
+  color: var(--snt-red);
+  padding: 5px 11px;
+}
+
+.snt-btn-delete:hover:not(:disabled) {
+  background-color: rgba(224, 0, 0, 0.06);
+}
+
+.snt-btn-delete:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(224, 0, 0, 0.25);
+}
+
+/* ============================================================================
+ * SntInput - Text input component
+ * ============================================================================ */
+
+.snt-input {
+  width: 100%;
+  padding: 6px 12px;
+  font-size: var(--snt-font-size-base);
+  line-height: 1.5;
+  color: var(--snt-color-text-primary);
+  background-color: var(--snt-white);
+  border: 1px solid var(--snt-color-border);
+  border-radius: var(--snt-border-radius);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.snt-input:focus {
+  outline: none;
+  border-color: var(--snt-blue);
+  box-shadow: 0 0 0 3px var(--snt-blue-focus);
+}
+
+.snt-input:disabled {
+  background-color: var(--snt-bg-zebra);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.snt-input:read-only {
+  background-color: var(--snt-bg-zebra);
+}
+
+.snt-input::placeholder {
+  color: var(--snt-grey);
+}
+
+/* Helper / info text under a form field. 12px, left-aligned, muted — drop a
+ * <p|span|small className="snt-field-info"> below any input or select to
+ * explain the field or surface a hint. */
+.snt-field-info {
+  display: block;
+  margin: 4px 0 0;
+  font-size: var(--snt-font-size-sm);
+  line-height: 1.4;
+  text-align: left;
+  color: var(--snt-color-text-secondary);
+}
+
+/* ============================================================================
+ * SntCard - Card container component
+ * ============================================================================ */
+
+.snt-card {
+  background: var(--snt-white);
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius-lg);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.snt-card-clickable {
+  cursor: pointer;
+}
+
+/* Hover matches SntSummaryStat clickable: white fill + drop shadow, no lift.
+ * No blue/selected state on cards. */
+.snt-card-clickable:hover {
+  background-color: var(--snt-white);
+  box-shadow: 0 2px 8px var(--snt-black-15);
+}
+
+.snt-card-image {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+  background-color: var(--snt-bg-lightgrey);
+}
+
+.snt-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.snt-card-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+}
+
+.snt-card-title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px 16px;
+  gap: 8px;
+}
+
+.snt-card-title {
+  flex: 1;
+  font-size: var(--snt-font-size-lg);
+  font-weight: 500;
+  color: var(--snt-color-text-primary);
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.snt-card-title-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.snt-card-title-button {
+  flex-shrink: 0;
+}
+
+.snt-card-body {
+  padding: 0 16px 16px 16px;
+  font-size: var(--snt-font-size-base);
+  color: var(--snt-color-text-secondary);
+  line-height: 1.5;
+}
+
+/* ============================================================================
+ * SntSection - titled page section container
+ * ============================================================================ */
+
+.snt-section {
+  background: var(--snt-color-bg-card);
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius-lg);
+  padding: 16px;
+}
+
+.snt-section-header {
+  margin-bottom: var(--snt-spacing-md);
+}
+
+.snt-section-title {
+  margin: 0;
+  font-size: var(--snt-font-size-h3);
+  font-weight: 600;
+  color: var(--snt-color-text-primary);
+  line-height: 1.3;
+}
+
+.snt-section-description {
+  margin: 2px 0 0;
+  font-size: var(--snt-font-size-base);
+  color: var(--snt-color-text-secondary);
+  line-height: 1.45;
+}
+
+.snt-section-body {
+  font-size: var(--snt-font-size-base);
+  color: var(--snt-color-text-secondary);
+  line-height: 1.5;
+}
+
+/* ============================================================================
+ * SntBadge - Status badge component
+ * Variants: primary, secondary, success, warning, danger, info, light, dark,
+ *           orange, salmon, purple, emerald
+ * ============================================================================ */
+
+.snt-badge {
+  /* Each variant sets only --snt-badge-color; the soft tint background,
+   * same-hue text and subtle border are derived from it here. */
+  --snt-badge-color: var(--snt-grey);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.35em 0.65em;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: none;
+  color: color-mix(in srgb, var(--snt-badge-color) 60%, black);
+  background-color: color-mix(in srgb, var(--snt-badge-color) 14%, white);
+  border: 1px solid color-mix(in srgb, var(--snt-badge-color) 28%, white);
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: var(--snt-border-radius);
+}
+
+/* Dotted variant — leads with an 8px solid circle in the variant's base
+ * colour. Use for status indications (SntBadge `dot` prop). */
+.snt-badge--dot::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--snt-badge-color);
+}
+
+.snt-badge-compact {
+  padding: 0.2em 0.45em;
+  font-size: 11px;
+}
+
+.snt-badge-primary { --snt-badge-color: var(--snt-blue-darkest); }
+.snt-badge-secondary { --snt-badge-color: var(--snt-grey); }
+.snt-badge-success { --snt-badge-color: var(--snt-green); }
+.snt-badge-warning { --snt-badge-color: var(--snt-yellow); }
+.snt-badge-danger { --snt-badge-color: var(--snt-red); }
+.snt-badge-info { --snt-badge-color: var(--snt-ui-selected); }
+.snt-badge-light { --snt-badge-color: var(--snt-grey-light); }
+.snt-badge-dark { --snt-badge-color: var(--snt-black); }
+.snt-badge-orange { --snt-badge-color: var(--snt-orange); }
+.snt-badge-salmon { --snt-badge-color: var(--snt-salmon); }
+.snt-badge-purple { --snt-badge-color: var(--snt-purple); }
+.snt-badge-emerald { --snt-badge-color: var(--snt-emerald); }
+
+/* ============================================================================
+ * SntToolbar - Horizontal toolbar for grouping actions
+ * ============================================================================ */
+
+.snt-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--snt-spacing-sm);
+  flex-wrap: wrap;
+}
+
+.snt-toolbar-spacer {
+  width: var(--snt-spacing-md);
+}
+
+/* ============================================================================
+ * SntButtonGroup - Segmented button control for exclusive selection
+ * ============================================================================ */
+
+.snt-button-group {
+  display: inline-flex;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--snt-grey-lighter);
+}
+
+.snt-button-group .snt-btn {
+  border-radius: 0;
+  border: none;
+  border-right: 1px solid var(--snt-grey-lighter);
+  background-color: var(--snt-bg-lightgrey);
+  color: var(--snt-color-text-primary);
+}
+
+.snt-button-group .snt-btn:last-child {
+  border-right: none;
+}
+
+.snt-button-group .snt-btn:hover:not(:disabled):not(.active) {
+  background-color: var(--snt-grey-lightest);
+}
+
+.snt-button-group .snt-btn.active {
+  background-color: var(--snt-white);
+  font-weight: 600;
+}
+
+/* ============================================================================
+ * Utility Classes
+ * ============================================================================ */
+
+.snt-text-primary { color: var(--snt-color-text-primary); }
+.snt-text-secondary { color: var(--snt-color-text-secondary); }
+.snt-text-muted { color: var(--snt-color-text-muted); }
+.snt-text-success { color: var(--snt-color-success); }
+.snt-text-warning { color: var(--snt-color-warning); }
+.snt-text-danger { color: var(--snt-color-danger); }
+.snt-text-info { color: var(--snt-color-info); }
+.snt-text-link { color: var(--snt-color-link); }
+
+/* ============================================================================
+ * SntLink - text link / link-styled action button
+ * ============================================================================ */
+
+.snt-link {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--snt-color-link);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease-in-out;
+}
+
+.snt-link:hover {
+  color: var(--snt-color-link-hover);
+  text-decoration: underline;
+}
+
+.snt-link:focus-visible {
+  outline: none;
+  border-radius: 2px;
+  box-shadow: 0 0 0 3px var(--snt-blue-focus);
+}
+
+.snt-link:disabled {
+  color: var(--snt-color-text-muted);
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.snt-bg-page { background-color: var(--snt-color-bg-page); }
+.snt-bg-card { background-color: var(--snt-color-bg-card); }
+.snt-bg-zebra { background-color: var(--snt-color-bg-zebra); }
+
+/* ============================================================================
+ * SntSpinner - Loading spinner component
+ * Sizes: small (20px), medium (32px), large (48px)
+ * ============================================================================ */
+
+.snt-spinner {
+  display: inline-block;
+  border: 3px solid var(--snt-grey-lightest);
+  border-top-color: var(--snt-blue-darkest);
+  border-radius: 50%;
+  animation: snt-spin 0.8s linear infinite;
+}
+
+.snt-spinner-small {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.snt-spinner-medium {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.snt-spinner-large {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+}
+
+@keyframes snt-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+ * SntLoadingOverlay - Centered loading spinner with optional message
+ * ============================================================================ */
+
+.snt-loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 16px;
+}
+
+.snt-loading-message {
+  color: var(--snt-grey);
+  font-size: var(--snt-font-size-base);
+  margin: 0;
+}
+
+/* ============================================================================
+ * SntTable - Sortable data table component
+ * ============================================================================ */
+
+/* Default sizing model: fill the parent. Parent must have a bounded height
+ * (an explicit height, or be a flex column with `min-height: 0` and `flex: 1`
+ * on the table). Opt out per-table via the `scroll` prop. */
+.snt-table-container {
+  display: flex;
+  flex-direction: column;
+  background: var(--snt-white);
+  height: 100%;
+  min-height: 0;
+  position: relative;
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius);
+}
+
+.snt-table-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* scroll="none": render at natural height, no inner scroller — the surrounding
+ * page or column owns the scroll context. Sticky header/footer disabled since
+ * there is nothing to stick to inside the table. */
+.snt-table-container.snt-table-scroll-none {
+  height: auto;
+  min-height: 0;
+}
+.snt-table-container.snt-table-scroll-none .snt-table-wrapper {
+  flex: 0 0 auto;
+  overflow: visible;
+}
+.snt-table-container.snt-table-scroll-none .snt-table thead th {
+  position: static;
+}
+.snt-table-container.snt-table-scroll-none .snt-table-footer {
+  position: static;
+  box-shadow: none;
+}
+
+/* scroll="viewport": opt-in to viewport-pinned sizing. The component sets
+ * max-height inline based on the `viewportOffset` prop. */
+.snt-table-container.snt-table-scroll-viewport {
+  height: 100%;
+}
+
+.snt-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.snt-table thead th {
+  padding: 8px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--snt-font-size-base);
+  color: var(--snt-grey-darker);
+  background: var(--snt-white);
+  border-bottom: 2px solid #f3f5f6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.snt-table thead th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.snt-table thead th.sortable:hover {
+  background: var(--snt-bg-zebra);
+}
+
+.snt-table thead th.sortable:hover .sort-icon-hover {
+  opacity: 1;
+}
+
+.snt-table thead th.sortable:hover .sort-icon {
+  color: var(--snt-color-text-primary);
+}
+
+/* Sort icon container - circular background like real Sensolus */
+.snt-table .sort-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--snt-bg-lightblue);
+  margin-left: 8px;
+  color: var(--snt-grey);
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.snt-table .sort-icon svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.snt-table .sort-icon-hover {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.snt-table .sort-icon-active {
+  color: var(--snt-color-text-primary);
+}
+
+/* Legacy text-based sort indicator */
+.snt-table thead th .sort-indicator {
+  color: var(--snt-grey);
+  margin-left: 4px;
+}
+
+.snt-table tbody tr.odd {
+  background: var(--snt-bg-zebra);
+}
+
+.snt-table tbody tr.even {
+  background: var(--snt-white);
+}
+
+.snt-table tbody tr:hover {
+  background: var(--snt-bg-lightblue);
+}
+
+.snt-table tbody td {
+  padding: 10px 16px;
+  font-size: var(--snt-font-size-base);
+  color: var(--snt-grey-darker);
+  vertical-align: middle;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.snt-table tbody td.empty-cell {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--snt-grey);
+}
+
+.snt-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--snt-white);
+  flex-wrap: wrap;
+  gap: 12px;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  box-shadow: 0 -2px 4px var(--snt-black-05);
+}
+
+.snt-table-footer .footer-left {
+  font-size: var(--snt-font-size-sm);
+  color: var(--snt-grey);
+}
+
+.snt-table-footer .footer-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.snt-page-size-select {
+  padding: 6px 10px;
+  font-size: var(--snt-font-size-sm);
+  border: 1px solid var(--snt-grey-light);
+  border-radius: var(--snt-border-radius);
+  background: var(--snt-white);
+  color: var(--snt-blue-darkest);
+  cursor: pointer;
+}
+
+.snt-page-size-select:focus {
+  outline: none;
+  border-color: var(--snt-blue);
+}
+
+.snt-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+.snt-page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  font-size: var(--snt-font-size-sm);
+  border: 1px solid var(--snt-grey-lightest);
+  background: var(--snt-white);
+  color: var(--snt-grey-darker);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.snt-page-btn:not(:first-child) {
+  margin-left: -1px;
+}
+
+.snt-page-btn:first-child {
+  border-radius: var(--snt-border-radius) 0 0 var(--snt-border-radius);
+}
+
+.snt-page-btn:last-child {
+  border-radius: 0 var(--snt-border-radius) var(--snt-border-radius) 0;
+}
+
+.snt-page-btn:hover:not(:disabled) {
+  background: var(--snt-bg-zebra);
+  z-index: 1;
+}
+
+.snt-page-btn.active {
+  background: var(--snt-bg-lightgrey);
+  font-weight: 600;
+  z-index: 2;
+}
+
+.snt-page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.snt-page-ellipsis {
+  padding: 0 8px;
+  color: var(--snt-grey);
+}
+
+/* ============================================================================
+ * SntProgressBar - Inline progress bar for percentages
+ * ============================================================================ */
+
+.snt-progress-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.snt-progress-track {
+  background: var(--snt-grey-lightest);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.snt-progress-bar-small .snt-progress-track {
+  width: 60px;
+  height: 6px;
+}
+
+.snt-progress-bar-medium .snt-progress-track {
+  width: 100px;
+  height: 8px;
+}
+
+.snt-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.snt-progress-primary { background: var(--snt-blue-darkest); }
+.snt-progress-success { background: var(--snt-green); }
+.snt-progress-warning { background: var(--snt-yellow); }
+.snt-progress-danger { background: var(--snt-red); }
+.snt-progress-info { background: var(--snt-ui-selected); }
+
+.snt-progress-label {
+  font-size: var(--snt-font-size-sm);
+  color: var(--snt-grey-darker);
+  min-width: 36px;
+}
+
+/* ============================================================================
+ * SntSelect - Dropdown select component
+ * ============================================================================ */
+
+.snt-select {
+  width: 100%;
+  padding: 6px 12px;
+  font-size: var(--snt-font-size-base);
+  line-height: 1.5;
+  color: var(--snt-color-text-primary);
+  background-color: var(--snt-white);
+  border: 1px solid var(--snt-color-border);
+  border-radius: var(--snt-border-radius);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23535E6F' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+  padding-right: 32px;
+}
+
+.snt-select:focus {
+  outline: none;
+  border-color: var(--snt-blue);
+  box-shadow: 0 0 0 3px var(--snt-blue-focus);
+}
+
+.snt-select:disabled {
+  background-color: var(--snt-bg-zebra);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ============================================================================
+ * SntMultiSelect - Dropdown with checkbox options (multi-pick)
+ * Trigger mirrors .snt-select; the popover is portaled to <body> and floats
+ * under the trigger, so its z-index sits above dialogs/sidepanels.
+ * ============================================================================ */
+
+.snt-multiselect {
+  position: relative;
+  width: 100%;
+}
+
+.snt-multiselect-trigger {
+  width: 100%;
+  padding: 6px 32px 6px 12px;
+  font-size: var(--snt-font-size-base);
+  line-height: 1.5;
+  text-align: left;
+  color: var(--snt-color-text-primary);
+  background-color: var(--snt-white);
+  border: 1px solid var(--snt-color-border);
+  border-radius: var(--snt-border-radius);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23535E6F' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.snt-multiselect-trigger:focus {
+  outline: none;
+  border-color: var(--snt-blue);
+  box-shadow: 0 0 0 3px var(--snt-blue-focus);
+}
+
+.snt-multiselect-trigger:disabled {
+  background-color: var(--snt-bg-zebra);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.snt-multiselect-placeholder {
+  color: var(--snt-grey);
+}
+
+.snt-multiselect-popover {
+  position: fixed;
+  z-index: 2000;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--snt-white);
+  border: 1px solid var(--snt-color-border);
+  border-radius: var(--snt-border-radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.snt-multiselect-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: var(--snt-font-size-base);
+  color: var(--snt-color-text-primary);
+  border-radius: var(--snt-border-radius);
+  cursor: pointer;
+}
+
+.snt-multiselect-option:hover {
+  background-color: var(--snt-bg-zebra);
+}
+
+.snt-multiselect-option input {
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: var(--snt-blue-darkest);
+}
+
+.snt-multiselect-all {
+  border-bottom: 1px solid var(--snt-color-border);
+  border-radius: 0;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.snt-multiselect-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================================
+ * SntSidepanel - Collapsible filter sidepanel
+ * ============================================================================ */
+
+.snt-sidepanel {
+  background: var(--snt-white);
+  border-right: 1px solid var(--snt-grey-lightest);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.snt-sidepanel-open {
+  width: var(--sidepanel-width, 280px);
+}
+
+.snt-sidepanel-closed {
+  width: 48px;
+}
+
+.snt-sidepanel-closed .snt-sidepanel-content,
+.snt-sidepanel-closed .snt-sidepanel-title {
+  display: none;
+}
+
+.snt-sidepanel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--snt-grey-lightest);
+}
+
+.snt-sidepanel-title {
+  margin: 0;
+  font-size: var(--snt-font-size-base);
+  font-weight: 600;
+  color: var(--snt-color-text-primary);
+}
+
+.snt-sidepanel-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: var(--snt-bg-zebra);
+  border-radius: var(--snt-border-radius);
+  cursor: pointer;
+  color: var(--snt-grey);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.snt-sidepanel-toggle:hover {
+  background: var(--snt-grey-lightest);
+  color: var(--snt-color-text-primary);
+}
+
+.snt-sidepanel-toggle svg {
+  transition: transform 0.2s ease;
+}
+
+.snt-sidepanel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px 16px 16px;
+}
+
+/* Filter sections */
+.snt-filter-section {
+  margin-bottom: 28px;
+}
+
+.snt-filter-section:last-child {
+  margin-bottom: 0;
+}
+
+.snt-filter-section-label {
+  display: block;
+  font-size: var(--snt-font-size-sm);
+  font-weight: 600;
+  color: var(--snt-color-text-primary);
+  margin-bottom: 8px;
+}
+
+/* ============================================================================
+ * SntHistogram - Microchart histogram for data distribution
+ * ============================================================================ */
+
+.snt-histogram {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.snt-histogram-chart {
+  height: var(--histogram-height, 60px);
+  background: var(--snt-white);
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius);
+  padding: 4px;
+}
+
+.snt-histogram-bars {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  gap: 1px;
+}
+
+.snt-histogram-bar {
+  flex: 1;
+  min-width: 2px;
+  background-color: var(--snt-blue-darkest);
+  border-radius: 1px 1px 0 0;
+  min-height: 1px;
+}
+
+.snt-histogram-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--snt-grey);
+}
+
+/* ============================================================================
+ * SntTabs - Tab navigation
+ * ============================================================================ */
+
+.snt-tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.snt-tabs-header {
+  display: flex;
+  border-bottom: 1px solid var(--snt-grey-lightest);
+  gap: 4px;
+}
+
+.snt-tab {
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  font-size: var(--snt-font-size-base);
+  font-weight: 500;
+  color: var(--snt-grey);
+  cursor: pointer;
+  position: relative;
+  border-radius: var(--snt-border-radius) var(--snt-border-radius) 0 0;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.snt-tab:hover:not(.snt-tab-active) {
+  color: var(--snt-blue-darkest);
+  background-color: var(--snt-bg-zebra);
+}
+
+/* Faint underline hint on hover for non-active tabs */
+.snt-tab:hover:not(.snt-tab-active)::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--snt-grey-light);
+}
+
+.snt-tab-active {
+  color: var(--snt-blue-darkest);
+}
+
+.snt-tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--snt-blue-darkest);
+}
+
+.snt-tabs-content {
+  padding-top: 16px;
+}
+
+.snt-tab-panel {
+  /* Panel styling if needed */
+}
+
+/* fillHeight={true}: stretch the tab strip, the content area, and the active
+ * panel so a fill-capable child (SntTable, list, etc.) can resolve `height: 100%`
+ * against a bounded container instead of collapsing to 0. */
+.snt-tabs.snt-tabs--fill {
+  flex: 1;
+  min-height: 0;
+}
+.snt-tabs.snt-tabs--fill > .snt-tabs-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.snt-tabs.snt-tabs--fill > .snt-tabs-content > .snt-tab-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================================
+ * SntDateRangePicker — Sensolus platform style
+ * ============================================================================ */
+
+.snt-drp {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-family: var(--snt-font-family);
+}
+
+/* < [date display] > navigation block (single grouped control) */
+.snt-drp-nav {
+  display: inline-flex;
+  align-items: stretch;
+  height: 35px;
+}
+
+/* Static, non-navigable period label (navigable={false}) */
+.snt-drp-label {
+  display: inline-flex;
+  align-items: center;
+  color: var(--snt-blue-darkest);
+  font-size: var(--snt-font-size-base);
+  font-weight: 600;
+}
+
+.snt-drp-arrow,
+.snt-drp-display {
+  background: var(--snt-white);
+  border: 1px solid var(--snt-grey-light);
+  color: var(--snt-blue-darkest);
+  font-size: var(--snt-font-size-base);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+  height: 35px;
+}
+
+.snt-drp-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  padding: 0;
+  color: var(--snt-grey-darker);
+}
+
+.snt-drp-arrow:first-child {
+  border-radius: var(--snt-border-radius) 0 0 var(--snt-border-radius);
+}
+
+.snt-drp-display {
+  padding: 0 14px;
+  min-width: 220px;
+  text-align: center;
+  border-left: none;
+  border-right: none;
+  font-weight: 500;
+}
+
+.snt-drp-arrow:last-child {
+  border-radius: 0 var(--snt-border-radius) var(--snt-border-radius) 0;
+}
+
+.snt-drp-arrow:hover:not(:disabled),
+.snt-drp-display:hover:not(:disabled) {
+  background: var(--snt-bg-zebra);
+}
+
+/* Active state when calendar popover is open — blue outline around the display */
+.snt-drp-nav.open .snt-drp-display {
+  border-color: var(--snt-ui-selected);
+  border-left: 1px solid var(--snt-ui-selected);
+  border-right: 1px solid var(--snt-ui-selected);
+  box-shadow: inset 0 0 0 1px var(--snt-ui-selected);
+}
+
+.snt-drp-arrow:disabled,
+.snt-drp-display:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.snt-drp-arrow:focus-visible,
+.snt-drp-display:focus-visible {
+  outline: none;
+  z-index: 1;
+  box-shadow: 0 0 0 3px var(--snt-blue-focus);
+}
+
+/* Mode button group (Day | Week | Month | Custom) */
+.snt-drp-modes {
+  display: inline-flex;
+  height: 35px;
+}
+
+.snt-drp-mode {
+  background: var(--snt-bg-lightgrey);
+  border: 1px solid var(--snt-grey-light);
+  color: var(--snt-blue-darkest);
+  padding: 0 16px;
+  font-size: var(--snt-font-size-base);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+  height: 35px;
+}
+
+.snt-drp-mode + .snt-drp-mode {
+  border-left: none;
+}
+
+.snt-drp-modes .snt-drp-mode:first-child {
+  border-radius: var(--snt-border-radius) 0 0 var(--snt-border-radius);
+}
+
+.snt-drp-modes .snt-drp-mode:last-child {
+  border-radius: 0 var(--snt-border-radius) var(--snt-border-radius) 0;
+}
+
+.snt-drp-modes .snt-drp-mode:only-child {
+  border-radius: var(--snt-border-radius);
+}
+
+.snt-drp-mode:hover:not(:disabled):not(.active) {
+  background: var(--snt-grey-lightest);
+}
+
+.snt-drp-mode.active {
+  background: var(--snt-white);
+  font-weight: 600;
+}
+
+.snt-drp-mode:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.snt-drp-mode:focus-visible {
+  outline: none;
+  z-index: 1;
+  box-shadow: 0 0 0 3px var(--snt-blue-focus);
+}
+
+/* Vertical layout — stack the nav above the mode group; mode buttons become
+   standalone wrapping chips for a sidebar "column of filters". */
+.snt-drp-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.snt-drp-vertical .snt-drp-nav {
+  width: 100%;
+}
+
+.snt-drp-vertical .snt-drp-display {
+  flex: 1;
+  min-width: 0;
+}
+
+.snt-drp-vertical .snt-drp-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  height: auto;
+}
+
+.snt-drp-vertical .snt-drp-mode {
+  border: 1px solid var(--snt-grey-light);
+  border-radius: var(--snt-border-radius);
+  height: auto;
+  padding: 6px 12px;
+}
+
+/* Chips are standalone — undo the connected-segment border/radius collapsing. */
+.snt-drp-vertical .snt-drp-mode + .snt-drp-mode {
+  border-left: 1px solid var(--snt-grey-light);
+}
+
+/* Popover calendar (rendered via portal at document.body) */
+.snt-drp-popover {
+  position: fixed;
+  z-index: 2000;
+  background: var(--snt-white);
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: var(--snt-border-radius);
+  box-shadow: 0 6px 24px var(--snt-black-15);
+  padding: 0;
+  width: 280px;
+  user-select: none;
+  font-family: var(--snt-font-family);
+}
+
+.snt-drp-popover-tail {
+  position: absolute;
+  top: -7px;
+  left: 44px;
+  width: 12px;
+  height: 12px;
+  background: var(--snt-bg-lightgrey);
+  border-top: 1px solid var(--snt-grey-lightest);
+  border-left: 1px solid var(--snt-grey-lightest);
+  transform: rotate(45deg);
+}
+
+.snt-drp-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--snt-bg-lightgrey);
+  padding: 10px 12px;
+  border-radius: var(--snt-border-radius) var(--snt-border-radius) 0 0;
+  position: relative;
+  z-index: 1;
+}
+
+.snt-drp-month-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--snt-blue-darkest);
+  text-transform: capitalize;
+}
+
+.snt-drp-month-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--snt-grey-darker);
+  cursor: pointer;
+  border-radius: var(--snt-border-radius);
+}
+
+.snt-drp-month-nav:hover {
+  background: var(--snt-grey-lightest);
+}
+
+.snt-drp-weekdays,
+.snt-drp-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 8px;
+}
+
+.snt-drp-weekdays {
+  padding-top: 8px;
+  padding-bottom: 4px;
+}
+
+.snt-drp-weekday {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--snt-grey-darker);
+  padding: 4px 0;
+}
+
+.snt-drp-days {
+  padding-bottom: 8px;
+  row-gap: 2px;
+}
+
+.snt-drp-day {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--snt-blue-darkest);
+  cursor: pointer;
+  padding: 0;
+  height: 30px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  transition: background-color 0.1s;
+}
+
+.snt-drp-day:hover:not(:disabled):not(.in-range) {
+  background: var(--snt-bg-lightblue);
+}
+
+.snt-drp-day.out-of-month {
+  color: var(--snt-grey-light);
+}
+
+.snt-drp-day.today {
+  outline: 1px solid var(--snt-grey-lighter);
+  outline-offset: -3px;
+  font-weight: 700;
+}
+
+.snt-drp-day.in-range {
+  background: var(--snt-blue-darkest);
+  color: var(--snt-white);
+  font-weight: 600;
+}
+
+.snt-drp-day.in-range.out-of-month {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.snt-drp-day.range-start {
+  border-top-left-radius: var(--snt-border-radius);
+  border-bottom-left-radius: var(--snt-border-radius);
+}
+
+.snt-drp-day.range-end {
+  border-top-right-radius: var(--snt-border-radius);
+  border-bottom-right-radius: var(--snt-border-radius);
+}
+
+.snt-drp-day.range-single {
+  border-radius: var(--snt-border-radius);
+}
+
+.snt-drp-day:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Month grid (Month-mode picker) */
+.snt-drp-months {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 12px;
+}
+
+.snt-drp-month-cell {
+  background: transparent;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--snt-blue-darkest);
+  padding: 10px 6px;
+  cursor: pointer;
+  border-radius: var(--snt-border-radius);
+  text-transform: capitalize;
+}
+
+.snt-drp-month-cell:hover:not(.active) {
+  background: var(--snt-bg-lightblue);
+}
+
+.snt-drp-month-cell.active {
+  background: var(--snt-blue-darkest);
+  color: var(--snt-white);
+  font-weight: 600;
+}
+
+/* Today link footer */
+.snt-drp-today {
+  display: block;
+  width: 100%;
+  background: var(--snt-bg-lightgrey);
+  border: none;
+  border-top: 1px solid var(--snt-grey-lightest);
+  border-radius: 0 0 var(--snt-border-radius) var(--snt-border-radius);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--snt-blue-darkest);
+  padding: 6px 0;
+  cursor: pointer;
+  text-align: center;
+}
+
+.snt-drp-today:hover {
+  background: var(--snt-grey-lightest);
+}
+
+/* ============================================================================
+ * SntDialog
+ * ============================================================================ */
+
+.snt-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.snt-dialog {
+  background: var(--snt-white);
+  border-radius: var(--snt-border-radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* fillHeight: claim all available vertical space so children with internal
+ * scrollers (e.g. SntTable scroll="internal") have a definite parent height
+ * to fill. Without this the dialog shrink-wraps and the table stays tiny. */
+.snt-dialog.snt-dialog-fill-height {
+  height: calc(100vh - 40px);
+}
+
+.snt-dialog-small {
+  width: 400px;
+  max-width: 100%;
+}
+
+.snt-dialog-medium {
+  width: 600px;
+  max-width: 100%;
+}
+
+.snt-dialog-large {
+  width: 1100px;
+  max-width: 100%;
+}
+
+.snt-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--snt-grey-lightest);
+  flex-shrink: 0;
+}
+
+.snt-dialog-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--snt-blue-darkest);
+}
+
+.snt-dialog-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--snt-grey);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--snt-border-radius);
+  transition: all 0.15s ease;
+}
+
+.snt-dialog-close:hover {
+  background: var(--snt-bg-zebra);
+  color: var(--snt-blue-darkest);
+}
+
+.snt-dialog-content {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* scroll="none": defer scroll control to a fill-capable child (e.g. SntTable
+ * with scroll="internal"). Without this, both the dialog body and the child
+ * try to scroll and you get double scrollbars. */
+.snt-dialog.snt-dialog-scroll-none .snt-dialog-content {
+  overflow-y: visible;
+  display: flex;
+  flex-direction: column;
+}
+
+.snt-dialog-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--snt-grey-lightest);
+  flex-shrink: 0;
+}
+
+.snt-dialog-footer-align-start { justify-content: flex-start; }
+.snt-dialog-footer-align-end { justify-content: flex-end; }
+.snt-dialog-footer-align-center { justify-content: center; }
+.snt-dialog-footer-align-space-between { justify-content: space-between; }
+
+/* ============================================================================
+ * SntPageHeader - Page header matching Sensolus platform style
+ * ============================================================================ */
+
+.snt-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.snt-page-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.snt-page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.snt-page-header-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--snt-grey);
+  cursor: pointer;
+  border-radius: var(--snt-border-radius);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.snt-page-header-back:hover {
+  background-color: var(--snt-bg-zebra);
+  color: var(--snt-blue-darkest);
+}
+
+.snt-page-header-back svg {
+  flex-shrink: 0;
+}
+
+.snt-page-header-title {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1.3;
+  color: var(--snt-blue-darkest);
+}
+
+/* ============================================================================
+ * SntSummaryStat - Summary statistic display
+ * ============================================================================ */
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  background: transparent;
+  border-radius: var(--snt-border-radius);
+}
+
+.summary-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--snt-blue-darkest);
+  line-height: 1.2;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: var(--snt-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-hint {
+  font-size: 11px;
+  color: var(--snt-grey-light);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.summary-stat-success .summary-value { color: var(--snt-green); }
+.summary-stat-warning .summary-value { color: var(--snt-yellow); }
+.summary-stat-danger .summary-value { color: var(--snt-red); }
+.summary-stat-info .summary-value { color: var(--snt-ui-selected); }
+.summary-stat-secondary .summary-value { color: var(--snt-grey); }
+
+/* Clickable summary stats: white background + border to signal interactivity
+ * (non-clickable stats have no background). Hover/active add a drop shadow. */
+.summary-stat-clickable {
+  cursor: pointer;
+  background-color: var(--snt-white);
+  border: 1px solid var(--snt-grey-lightest);
+  transition: background-color 0.15s, box-shadow 0.15s;
+}
+
+.summary-stat-clickable:hover {
+  background-color: var(--snt-white);
+  box-shadow: 0 2px 8px var(--snt-black-15);
+}
+
+.summary-stat-clickable:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--snt-blue-focus);
+}
+
+/* Selected card: white + drop shadow so it reads as lifted/elevated. */
+.summary-stat-active {
+  background-color: var(--snt-white);
+  box-shadow: 0 2px 8px var(--snt-black-15);
+}
+
+/* ============================================================================
+ * Organisation Detail Page Styles
+ * ============================================================================ */
+
+.org-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.org-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.org-detail-label {
+  font-size: 12px;
+  color: var(--snt-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.org-detail-value {
+  font-size: 14px;
+  color: var(--snt-blue-darkest);
+  font-weight: 500;
+}
+
+.org-detail-section {
+  margin-bottom: 32px;
+}
+
+.org-detail-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--snt-blue-darkest);
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--snt-blue);
+}
+
+/* ============================================================================
+ * SntSwitch
+ * ============================================================================ */
+.snt-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.snt-switch--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.snt-switch input {
+  display: none;
+}
+
+.snt-switch__slider {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background-color: var(--snt-grey-light);
+  border-radius: 11px;
+  transition: background-color 0.2s ease;
+}
+
+.snt-switch__slider::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--snt-white);
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.snt-switch input:checked + .snt-switch__slider {
+  background-color: var(--snt-green);
+}
+
+.snt-switch input:checked + .snt-switch__slider::before {
+  transform: translateX(18px);
+}
+
+.snt-switch__label {
+  font-size: 14px;
+  color: var(--snt-grey);
+}
+
+.snt-switch:hover:not(.snt-switch--disabled) .snt-switch__slider {
+  background-color: var(--snt-grey);
+}
+
+.snt-switch:hover:not(.snt-switch--disabled) input:checked + .snt-switch__slider {
+  background-color: var(--snt-dark-green);
+}
+
+/* ============================================================================
+ * SntCheckboxList
+ * ============================================================================ */
+.snt-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.snt-checkbox-list-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--snt-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.snt-checkbox-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.snt-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--snt-blue-darkest);
+  transition: background-color 0.15s ease;
+}
+
+.snt-checkbox-item:hover {
+  background-color: var(--snt-bg-zebra);
+}
+
+.snt-checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--snt-blue-darkest);
+}
+
+.snt-checkbox-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.snt-checkbox-all {
+  font-weight: 500;
+  border-bottom: 1px solid var(--snt-grey-light);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+/* Horizontal layout — options flow in a wrapping inline row instead of a
+ * stacked column. The "select all" toggle sits at the front, separated by a
+ * right border rather than the column's full-width bottom border. */
+.snt-checkbox-list--horizontal .snt-checkbox-list-items {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 4px;
+  max-height: none;
+  overflow: visible;
+}
+
+.snt-checkbox-list--horizontal .snt-checkbox-item {
+  flex: 0 0 auto;
+}
+
+.snt-checkbox-list--horizontal .snt-checkbox-text {
+  white-space: nowrap;
+}
+
+.snt-checkbox-list--horizontal .snt-checkbox-all {
+  border-bottom: none;
+  border-right: 1px solid var(--snt-grey-light);
+  padding-bottom: 4px;
+  padding-right: 12px;
+  margin-bottom: 0;
+}
+
+/* ============================================================================
+ * SntGrid
+ * ============================================================================ */
+.snt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--grid-min-width, 350px), 1fr));
+  grid-auto-rows: 1fr;
+  gap: var(--grid-gap, 20px);
+}
+
+.snt-grid-item {
+  display: flex;
+}
+
+.snt-grid-item > * {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================================
+ * SntMessage
+ * Inline message box: colored left border + tinted background.
+ * ============================================================================ */
+.snt-message {
+  padding: 12px 16px;
+  background-color: var(--snt-bg-lightgrey);
+  border-radius: var(--snt-border-radius);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--snt-color-text-primary);
+}
+
+.snt-message p {
+  margin: 0 0 8px 0;
+}
+
+.snt-message p:last-child {
+  margin-bottom: 0;
+}
+
+.snt-message--info {
+  background-color: rgba(0, 166, 237, 0.08);
+}
+
+.snt-message--success {
+  background-color: rgba(57, 203, 153, 0.08);
+}
+
+.snt-message--warning {
+  background-color: rgba(255, 168, 88, 0.12);
+}
+
+.snt-message--danger {
+  background-color: rgba(224, 0, 0, 0.08);
+}
+
+/* ============================================================================
+ * SntMap - marker cluster count
+ * The cluster divIcon stacks the bubble image with a .snt-cluster count div;
+ * overlay the count centered on the bubble (line-height set inline to match
+ * the icon height for vertical centering).
+ * ============================================================================ */
+
+.snt-cluster {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: var(--snt-white);
+  font-weight: 600;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+/* Map frame: 1px border + 4px rounded corners. overflow:hidden clips the tiles
+ * to the rounded corners (map controls live in a sibling overlay, so they're
+ * unaffected). */
+.snt-map {
+  border: 1px solid var(--snt-grey-lightest);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* ============================================================================
+ * SntMap - permanent asset label
+ * Render the asset/device name as plain text above its marker instead of
+ * Leaflet's default white call-out box. Strip the tooltip chrome (background,
+ * border, shadow, padding) and its directional arrow; a white text-shadow
+ * keeps the label legible over any map tile.
+ * ============================================================================ */
+
+.leaflet-tooltip.snt-device-label {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  color: var(--snt-color-text-primary);
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+  text-shadow:
+    0 0 2px var(--snt-white),
+    0 0 2px var(--snt-white),
+    0 0 3px var(--snt-white);
+}
+
+.leaflet-tooltip.snt-device-label::before {
+  display: none;
+}

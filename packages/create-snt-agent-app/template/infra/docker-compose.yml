@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgis/postgis:17-3.5
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: snt
+      POSTGRES_PASSWORD: snt
+      POSTGRES_DB: {{APP_NAME}}
+
+volumes:
+  pgdata:

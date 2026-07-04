@@ -1,0 +1,22 @@
+{
+  "name": "@sensolus/create-snt-agent-app",
+  "version": "0.3.15",
+  "description": "Scaffold a new Sensolus agent app: React frontend wired to @sensolus/snt-agent-kit + Flask API proxy backend.",
+  "type": "module",
+  "bin": {
+    "create-snt-agent-app": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "template"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sensolus/snt-agent-kit.git",
+    "directory": "packages/create-snt-agent-app"
+  }
+}

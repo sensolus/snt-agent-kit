@@ -1,0 +1,47 @@
+{
+  "name": "@sensolus/snt-agent-kit",
+  "version": "0.7.8",
+  "description": "Sensolus agent-app kit: Snt* widgets (merged from @sensolus/snt-ui), theme, colors, i18n framework. Locked shared code — import it, don't copy it.",
+  "type": "module",
+  "files": [
+    "dist",
+    "docs"
+  ],
+  "main": "./dist/snt-agent-kit.js",
+  "module": "./dist/snt-agent-kit.js",
+  "exports": {
+    ".": "./dist/snt-agent-kit.js",
+    "./theme.css": "./dist/snt-agent-kit.css"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "leaflet-control-geocoder": "^3.3.1",
+    "leaflet.markercluster": "^1.5.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.2",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "vite": "^7.3.1"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sensolus/snt-agent-kit.git",
+    "directory": "packages/snt-agent-kit"
+  }
+}

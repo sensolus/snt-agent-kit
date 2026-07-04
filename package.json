@@ -1,0 +1,21 @@
+{
+  "name": "snt-agent-kit-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Monorepo for the Sensolus agent-app foundation: @sensolus/snt-agent-kit (locked shared UI/i18n) + @sensolus/create-snt-agent-app (scaffolder).",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=@sensolus/snt-agent-kit",
+    "showcase": "npm run dev --workspace=@sensolus/widget-showcase",
+    "publish:kit": "npm publish --workspace=@sensolus/snt-agent-kit",
+    "publish:create": "npm publish --workspace=@sensolus/create-snt-agent-app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sensolus/snt-agent-kit.git"
+  },
+  "license": "MIT"
+}
