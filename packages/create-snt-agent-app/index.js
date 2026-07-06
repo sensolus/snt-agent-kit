@@ -7,6 +7,7 @@
  */
 import { cp, readdir, readFile, writeFile, rename, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -48,16 +49,53 @@ async function substitute(dir) {
 }
 await substitute(targetDir)
 
+// Create Python virtualenv in backend/.venv
+const backendDir = path.join(targetDir, 'backend')
+if (existsSync(backendDir)) {
+  const whichCmd = process.platform === 'win32' ? 'where' : 'which'
+  const whichRes = spawnSync(whichCmd, ['virtualenv'], { stdio: 'ignore' })
+  if (whichRes.status !== 0) {
+    console.warn(`
+⚠  virtualenv not found on PATH — skipping backend virtualenv creation.
+   Install it with:  pip install --user virtualenv
+   Then run:         cd ${appName}/backend && virtualenv -p python3 .venv
+`)
+  } else {
+    console.log('Creating backend virtualenv (backend/.venv)…')
+    const venvRes = spawnSync('virtualenv', ['-p', 'python3', '.venv'], {
+      cwd: backendDir,
+      stdio: 'inherit',
+    })
+    if (venvRes.error || venvRes.status !== 0) {
+      console.warn(`
+⚠  virtualenv creation failed (exit ${venvRes.status ?? 'n/a'}).
+   Create it manually with:  cd ${appName}/backend && virtualenv -p python3 .venv
+`)
+    }
+  }
+}
+
 console.log(`
 Created ${appName}/
 
 Next steps:
   cd ${appName}
-  cp .env.example .env             # then fill in MAPBOX_KEY + LOCATIONIQ_KEY (required for SntMap)
-  cd frontend && npm install       # frontend deps
-  pip install -r backend/requirements.txt
-  cd frontend && npm run dev       # frontend on :3000
-  python backend/app.py            # backend on :5000 (separate terminal)
+
+  Optional — richer maps in SntMap (falls back to OpenStreetMap without either key):
+    cp .env.example .env
+      MAPBOX_KEY      → enables the satellite layer + toggle
+      LOCATIONIQ_KEY  → enables the geocoder and premium street tiles
+
+  Run it:
+    • Recommended — open the folder in VS Code and run the build task
+      "Start Dev (Frontend + Backend)" (Ctrl+Shift+B). It installs deps
+      and starts both servers side by side.
+
+    • Or from a terminal — one-time install, then start:
+        cd frontend && npm install && cd ..
+        backend/.venv/bin/pip install -r backend/requirements.txt
+        ./start-frontend.sh    # Vite on :3000
+        ./start-backend.sh     # Flask on :5000  (separate terminal)
 
 Rules: widgets/theme/i18n come from @sensolus/snt-agent-kit — import, don't copy.
 ESLint enforces no deep imports and no Snt* re-declarations.

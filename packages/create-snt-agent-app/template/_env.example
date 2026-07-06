@@ -1,8 +1,13 @@
 # Copy to .env and fill in — never commit the real .env (it is gitignored).
 #
-# Map provider keys (get them from your team vault). Required for SntMap:
+# Map provider keys (get them from your team vault). Both are OPTIONAL:
 # the Flask backend reads them at request time and serves them to the
 # frontend via /api/config, so one Docker image works across environments.
+#   MAPBOX_KEY      → enables the SntMap satellite layer + toggle.
+#                     Without it, only OSM street tiles are shown (no satellite).
+#   LOCATIONIQ_KEY  → enables the SntMap geocoder and premium street tiles.
+#                     Without it, tiles fall back to OpenStreetMap and the
+#                     geocoder is disabled.
 MAPBOX_KEY=
 LOCATIONIQ_KEY=
 

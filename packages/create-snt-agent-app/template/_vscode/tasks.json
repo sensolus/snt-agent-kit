@@ -1,0 +1,81 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Install Backend Deps",
+      "type": "shell",
+      "command": "${workspaceFolder}/backend/.venv/bin/pip",
+      "args": ["install", "-r", "requirements.txt"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "presentation": {
+        "group": "dev",
+        "panel": "dedicated",
+        "reveal": "always",
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install Frontend Deps",
+      "type": "shell",
+      "command": "npm",
+      "args": ["install"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "presentation": {
+        "group": "dev",
+        "panel": "dedicated",
+        "reveal": "always",
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Frontend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "dependsOn": ["Install Frontend Deps"],
+      "isBackground": true,
+      "presentation": {
+        "group": "dev",
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Backend",
+      "type": "shell",
+      "command": "${workspaceFolder}/backend/.venv/bin/python",
+      "args": ["app.py"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "dependsOn": ["Install Backend Deps"],
+      "isBackground": true,
+      "presentation": {
+        "group": "dev",
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Dev (Frontend + Backend)",
+      "dependsOn": ["Start Frontend", "Start Backend"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}

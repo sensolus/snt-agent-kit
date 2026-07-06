@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.7.10
+
+### `@sensolus/snt-agent-kit`
+
+- Version bump only (publish parity).
+
+### `@sensolus/create-snt-agent-app`
+
+- **Scaffolder auto-creates the backend virtualenv.** After copying the template, `create-snt-agent-app` runs `virtualenv -p python3 .venv` inside the generated `backend/` folder. If `virtualenv` isn't on `PATH`, the scaffolder prints a warning with the install/manual command and continues — the app still generates cleanly.
+- **Ships a `.vscode/tasks.json`.** The template now seeds a `.vscode/tasks.json` (packaged as `_vscode/tasks.json` and renamed at scaffold time) with tasks to install deps and start the Vite frontend + Flask backend side-by-side. The default build task is `Start Dev (Frontend + Backend)` (parallel).
+- **Post-scaffold "Next steps" rewritten.** Recommends the VS Code build task first and the `start-frontend.sh` / `start-backend.sh` scripts as the terminal fallback. Also flags `MAPBOX_KEY` and `LOCATIONIQ_KEY` as optional (matching 0.7.9's `SntMap` OSM fallback) rather than required. `_env.example` gets matching per-key comments.
+- **Kit dependency bumped in the frontend template.** The generated `frontend/package.json` now depends on `@sensolus/snt-agent-kit@^0.7.10` (was `^0.4.0`). Because npm's caret rule for `0.x` versions locks to the minor, `^0.4.0` was resolving to `0.4.x` — a version that predates `SNT_ICON_NAMES`, `SntIcon`, `SntSection`, `SntLink`, and other symbols the template's `WidgetShowcase.jsx` imports, so fresh scaffolds failed at dev-server startup with `does not provide an export named 'SNT_ICON_NAMES'`.
+
 ## 0.7.9
 
 ### `@sensolus/snt-agent-kit`
