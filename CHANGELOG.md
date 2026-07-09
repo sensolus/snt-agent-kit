@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.11
+
+### `@sensolus/snt-agent-kit`
+
+- **`SntMap` — layer toggle order is stable across clicks.** The bottom-left "Layers" hover panel no longer reorders itself when a toggle is clicked. `registerLayerToggle` now replaces an existing entry in place instead of dropping it and re-appending, so toggles stay in mount order for the lifetime of the map.
+
+### `@sensolus/create-snt-agent-app`
+
+- Version bump only (publish parity).
+
 ## 0.7.10
 
 ### `@sensolus/snt-agent-kit`

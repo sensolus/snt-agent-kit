@@ -251,8 +251,10 @@ export function SntMap({
   const registerLayerToggle = useCallback((toggle) => {
     const { id } = toggle
     setLayerToggles(prev => {
-      const next = prev.filter(t => t.id !== id)
-      next.push(toggle)
+      const idx = prev.findIndex(t => t.id === id)
+      if (idx === -1) return [...prev, toggle]
+      const next = prev.slice()
+      next[idx] = toggle
       return next
     })
     return () => {
