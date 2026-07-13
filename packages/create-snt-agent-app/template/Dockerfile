@@ -23,6 +23,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy Flask app and built frontend
 COPY backend/ backend/
 COPY --from=builder /app/frontend/dist frontend/dist/
+# Single-source app descriptor (served at /.well-known/sensolus-app at runtime).
+# PROJECT_ROOT in app.py resolves to /app, so it must live at the image root.
+COPY sensolus-app.yaml ./
 
 # Run as non-root user
 RUN groupadd --system --gid 1001 app \

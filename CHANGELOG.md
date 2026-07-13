@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.12
+
+### `@sensolus/snt-agent-kit`
+
+- Version bump only (publish parity).
+
+### `@sensolus/create-snt-agent-app`
+
+- **Single-source app descriptor via `sensolus-app.yaml`** (aligned with `sample_micro_app`). The template now ships a repo-root `sensolus-app.yaml` as the single source of truth for the app manifest — read by the Micro App Manager at registration time (its `build:` block drives the Jenkins pipeline) and baked into the Docker image so `/.well-known/sensolus-app` serves identical content at runtime. `backend/app.py` replaces the hardcoded `APP_DESCRIPTOR` dict with a loader that reads `sensolus-app.(yaml|yml|json)` from the project root and strips the registration-only `build:` block. Adds `pyyaml==6.0.3` to `backend/requirements.txt` and a `COPY sensolus-app.yaml ./` step to the Dockerfile. The scaffolder already substitutes `{{APP_NAME}}` in `.yaml` files, so the descriptor is templated like everything else. Template `CLAUDE.md` documents the pattern.
+
 ## 0.7.11
 
 ### `@sensolus/snt-agent-kit`

@@ -7,6 +7,7 @@ from flask_apscheduler import APScheduler
 from flask_socketio import SocketIO
 from flask_migrate import Migrate
 import requests
+import yaml
 from dotenv import load_dotenv
 
 from db_config import get_database_uri
@@ -57,46 +58,28 @@ MANAGER_AUTH_KEY = os.environ.get("MANAGER_AUTH_KEY")
 HEADER_MANAGER_AUTH = "X-Sensolus-Manager-Auth"
 HEADER_SENSOLUS_AUTH = "X-Sensolus-Auth"
 
-APP_DESCRIPTOR = {
-    "schemaVersion": 1,
-    "app": {
-        "name": "{{APP_NAME}}",
-        "version": "1.0.0",
-    },
-    "landingPages": [
-        {
-            "id": "overview",
-            "path": "/",
-            "title": "Organisations",
-            "description": "Browse Sensolus organisations",
-        },
-        {
-            "id": "organisation-detail",
-            "path": "/organisation/{orgId}",
-            "title": "Organisation detail",
-            "context": "org",
-        },
-    ],
-    "secrets": {
-        "reverseGeocoding": True,
-    },
-    "database": True,
-    "cron": [
-        {
-            "id": "collect-org-stats",
-            "path": "/cron/collect-org-stats",
-            "method": "POST",
-            "description": "Snapshots tracker and user counts per organisation (max one point per day per org)",
-            "schedule": "0 3 * * *",
-            "timezone": "Europe/Brussels",
-            "timeoutSeconds": 120,
-            "apiKey": {
-                "type": "ro",
-                "scope": "system",
-            },
-        },
-    ],
-}
+def _load_app_descriptor():
+    """Load the single-source descriptor from the repo-root sensolus-app file.
+
+    The same file is read by the manager from the git repo at registration time
+    (its `build:` block drives the Jenkins pipeline) and baked into the image so
+    this runtime endpoint serves identical content — no drift. The `build:`
+    block is registration-only, so it's stripped from the runtime descriptor.
+    """
+    for name in ("sensolus-app.yaml", "sensolus-app.yml", "sensolus-app.json"):
+        path = os.path.join(PROJECT_ROOT, name)
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                descriptor = yaml.safe_load(f)  # safe_load also parses JSON
+            descriptor.pop("build", None)
+            logger.info("Loaded app descriptor from %s", name)
+            return descriptor
+    raise RuntimeError(
+        f"No sensolus-app.(yaml|yml|json) found at {PROJECT_ROOT}"
+    )
+
+
+APP_DESCRIPTOR = _load_app_descriptor()
 
 
 def _mask(value):

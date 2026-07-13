@@ -1,0 +1,39 @@
+# Sensolus app descriptor — single source of truth.
+#
+# Read by the Micro App Manager in two places:
+#   1. At registration (source_type=repo): fetched from this repo via the git
+#      provider API; the `build:` block drives the generated Jenkins pipeline.
+#   2. At runtime: baked into the image and served at /.well-known/sensolus-app
+#      (the `build:` block is dropped there — it's registration-only).
+#
+# See docs/app-descriptor-spec.md in the manager repo for the full schema.
+schemaVersion: 1
+app:
+  name: {{APP_NAME}}
+  version: "1.0.0"
+landingPages:
+  - id: overview
+    path: /
+    title: Organisations
+    description: Browse Sensolus organisations
+  - id: organisation-detail
+    path: /organisation/{orgId}
+    title: Organisation detail
+    context: org
+secrets:
+  reverseGeocoding: true
+database: true
+cron:
+  - id: collect-org-stats
+    path: /cron/collect-org-stats
+    method: POST
+    description: Snapshots tracker and user counts per organisation (max one point per day per org)
+    schedule: "0 3 * * *"
+    timezone: Europe/Brussels
+    timeoutSeconds: 120
+    apiKey:
+      type: ro
+      scope: system
+build:
+  dockerfile: Dockerfile
+  context: .
