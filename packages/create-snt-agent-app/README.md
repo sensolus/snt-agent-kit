@@ -15,12 +15,19 @@ together, how auth works, and how it deploys.
 ```bash
 npm create @sensolus/snt-agent-app my-app
 cd my-app
-cp .env.example .env             # fill in MAPBOX_KEY + LOCATIONIQ_KEY (required for SntMap)
-cd frontend && npm install       # frontend deps
-pip install -r backend/requirements.txt
-cd frontend && npm run dev       # frontend on :3000
-python backend/app.py            # backend on :5000 (separate terminal)
+cp .env.example .env             # optional — map keys (see "Runtime configuration")
+cd frontend && npm install && cd ..
+backend/.venv/bin/pip install -r backend/requirements.txt   # venv created by the scaffolder
+./start-frontend.sh              # Vite on :3000
+./start-backend.sh               # Flask on :5000 (separate terminal)
 ```
+
+Or open the folder in VS Code and run the default build task
+**Start Dev (Frontend + Backend)** (Ctrl+Shift+B) — it installs deps and
+starts both servers side by side.
+
+`MAPBOX_KEY` and `LOCATIONIQ_KEY` are **optional**: without them `SntMap`
+falls back to OpenStreetMap tiles (no satellite layer, no geocoder).
 
 Open http://localhost:3000. The Vite dev server proxies `/api/*` to Flask on
 `:5000`. In production, Flask serves the built frontend from `frontend/dist/`
@@ -56,8 +63,14 @@ my-app/
 │   └── docker-compose.yml    # local PostgreSQL 17 + PostGIS
 ├── scripts/
 │   └── create-ecr-repo.sh    # one-time ECR bootstrap
+├── .vscode/
+│   └── tasks.json            # "Start Dev (Frontend + Backend)" build task
+├── sensolus-app.yaml         # app descriptor — single source of truth
+├── start-frontend.sh         # Vite dev server on :3000
+├── start-backend.sh          # Flask on :5000
 ├── Dockerfile                # multi-stage: node build → python runtime
 ├── Jenkinsfile               # build + push to ECR
+├── CLAUDE.md                 # guidance for Claude Code in the generated app
 ├── openapi.json              # Sensolus public API spec (reference)
 └── .env.example
 ```
@@ -67,7 +80,8 @@ my-app/
 1. **Frontend** calls `/api/*` on its own origin.
 2. In dev, **Vite** proxies `/api/*` to Flask on `:5000`. In prod, Flask
    handles them directly and also serves `frontend/dist/` as static files.
-3. **Flask** forwards Sensolus-shaped calls to `cloud.sensolus.com` via
+3. **Flask** forwards Sensolus-shaped calls to the platform
+   (`SENSOLUS_DOMAIN` env var, default `cloud.sensolus.com`) via
    `sensolus_client_api.make_sensolus_request()`, attaching whichever
    credential it has (see auth below).
 4. **App-owned endpoints** (favourites, org-stats, config, geocode) hit
@@ -88,7 +102,7 @@ available, session cookie first:
 
 | Source | How Flask gets it | Sent upstream as |
 |---|---|---|
-| **Session cookie** (`prod-sensolus-token`) | Browser sends it automatically to `cloud.sensolus.com` and, for same-site deploys, to this app | `Authorization: Bearer <token>` |
+| **Session cookie** (`SENSOLUS_COOKIE_NAME` env var, default `prod-sensolus-token`) | Browser sends it automatically to the platform and, for same-site deploys, to this app | `Authorization: Bearer <token>` |
 | **API key** | User pastes it into the app; Flask validates it against `/loginInfo` and stores it in the server-side session | `?apiKey=<key>` query param |
 
 Endpoints: `POST /api/auth/api-key` (validate + store), `DELETE
@@ -99,8 +113,8 @@ current session has).
 
 Two endpoints require the platform's own auth, not the end user's:
 
-- `GET /.well-known/sensolus-app` — the app descriptor (`APP_DESCRIPTOR` in
-  `app.py`): landing pages, cron jobs, DB flag, required secrets.
+- `GET /.well-known/sensolus-app` — the app descriptor (from
+  `sensolus-app.yaml`): landing pages, cron jobs, DB flag, required secrets.
 - `POST /cron/*` — scheduled jobs triggered by the platform.
 
 Both check the `X-Sensolus-Manager-Auth` header against the
@@ -109,16 +123,24 @@ Both check the `X-Sensolus-Manager-Auth` header against the
 
 ### App descriptor
 
-Lives in `APP_DESCRIPTOR` in [backend/app.py](template/backend/app.py). It
-declares landing pages (deep-link targets), cron schedules, whether the app
-uses the database, and which secrets it needs (`reverseGeocoding`, etc.).
-The platform reads this at registration time.
+Lives in [sensolus-app.yaml](template/sensolus-app.yaml) at the repo root —
+the single source of truth. It declares landing pages (deep-link targets),
+cron schedules, whether the app uses the database, and which secrets it
+needs (`reverseGeocoding`, etc.). The platform reads the same file twice:
+from the git repo at registration time (its `build:` block drives the
+generated Jenkins pipeline), and at runtime via
+`GET /.well-known/sensolus-app` — the Dockerfile bakes the YAML into the
+image and Flask serves it with the registration-only `build:` block
+stripped, so the two can never drift. Edit the YAML; never hardcode
+descriptor content in `app.py`.
 
 ## Runtime configuration
 
-Map provider keys (`MAPBOX_KEY`, `LOCATIONIQ_KEY`) are **never** baked into
-the frontend bundle. Flask reads them from env at request time and serves
-them from `GET /api/config`, which `AppConfigContext` fetches on mount.
+Map provider keys (`MAPBOX_KEY`, `LOCATIONIQ_KEY`) are **optional** — without
+them `SntMap` falls back to OpenStreetMap tiles, with no satellite layer and
+no geocoder. They are **never** baked into the frontend bundle: Flask reads
+them from env at request time and serves them from `GET /api/config`, which
+`AppConfigContext` fetches on mount.
 Effect: one Docker image deploys to dev/demo/prod — only the container's env
 changes.
 
@@ -145,8 +167,8 @@ Two paths, use whichever fits:
 - **APScheduler** (in-process) — decorate a function in `backend/app.py`
   with `@scheduler.task(...)` for jobs that run inside the Flask process.
   The template ships a `heartbeat` job as a working example.
-- **Platform cron** — declare the job in `APP_DESCRIPTOR["cron"]` and
-  implement it as a `POST /cron/<id>` endpoint. The Sensolus platform
+- **Platform cron** — declare the job under `cron:` in `sensolus-app.yaml`
+  and implement it as a `POST /cron/<id>` endpoint. The Sensolus platform
   invokes it on schedule and supplies the API key via `X-Sensolus-Auth`.
   Use this when the app needs to iterate over multiple orgs or run in a
   different container than the web tier.
@@ -169,7 +191,8 @@ Multi-stage Dockerfile:
 1. `node:20-slim` — installs from `frontend/package.json` and runs `npm run
    build` → `frontend/dist/`.
 2. `python:3.12-slim` — installs `backend/requirements.txt`, copies
-   `backend/` and the built `frontend/dist/`, runs as non-root user, launches
+   `backend/`, the built `frontend/dist/`, and `sensolus-app.yaml` (served at
+   `/.well-known/sensolus-app`), runs as non-root user, launches
    `python backend/app.py`.
 
 The `Jenkinsfile` builds the image and pushes to ECR
