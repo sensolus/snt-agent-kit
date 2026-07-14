@@ -72,10 +72,14 @@ Created ${appName}/
 Next steps:
   cd ${appName}
 
-  Optional — richer maps in SntMap (falls back to OpenStreetMap without either key):
-    cp .env.example .env
-      MAPBOX_KEY      → enables the satellite layer + toggle
-      LOCATIONIQ_KEY  → enables the geocoder and premium street tiles
+  Database — start a local PostgreSQL (PostGIS) with Docker Compose:
+    docker compose -f infra/docker-compose.yml up -d
+      Defaults: host localhost:5432, db ${appName}, user/password snt/snt.
+      Stop with:  docker compose -f infra/docker-compose.yml down
+                  (add -v to also wipe the data volume)
+
+    Don't need a database? Set  database: false  in sensolus-app.yaml
+    and skip the step above.
 
   Run it:
     • Recommended — open the folder in VS Code and run the build task

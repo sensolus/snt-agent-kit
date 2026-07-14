@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.13
+
+### `@sensolus/snt-agent-kit`
+
+- Version bump only (publish parity).
+
+### `@sensolus/create-snt-agent-app`
+
+- **Scaffolder uses the stdlib `venv` module instead of `virtualenv`.** `index.js` now runs `python3 -m venv .venv` (`python` on Windows) to create the backend environment, dropping the dependency on the third-party `virtualenv` command and the PATH probe that checked for it. A missing interpreter is surfaced via the spawn error, and the manual-recovery message matches. Aligns with the template README, which already documented `python -m venv`.
+- **Scaffolder "Next steps" now covers the local database.** Removed the `MAPBOX_KEY` / `LOCATIONIQ_KEY` map-key guidance from the post-scaffold output; replaced it with instructions to bring up the local PostgreSQL/PostGIS via `docker compose -f infra/docker-compose.yml up -d`, plus a note to set `database: false` in `sensolus-app.yaml` when no database is needed.
+
 ## 0.7.12
 
 ### `@sensolus/snt-agent-kit`
