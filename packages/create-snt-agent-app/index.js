@@ -49,29 +49,20 @@ async function substitute(dir) {
 }
 await substitute(targetDir)
 
-// Create Python virtualenv in backend/.venv
+// Create Python virtual environment in backend/.venv (stdlib venv, Python 3.3+)
 const backendDir = path.join(targetDir, 'backend')
 if (existsSync(backendDir)) {
-  const whichCmd = process.platform === 'win32' ? 'where' : 'which'
-  const whichRes = spawnSync(whichCmd, ['virtualenv'], { stdio: 'ignore' })
-  if (whichRes.status !== 0) {
+  const python = process.platform === 'win32' ? 'python' : 'python3'
+  console.log('Creating backend virtual environment (backend/.venv)…')
+  const venvRes = spawnSync(python, ['-m', 'venv', '.venv'], {
+    cwd: backendDir,
+    stdio: 'inherit',
+  })
+  if (venvRes.error || venvRes.status !== 0) {
     console.warn(`
-⚠  virtualenv not found on PATH — skipping backend virtualenv creation.
-   Install it with:  pip install --user virtualenv
-   Then run:         cd ${appName}/backend && virtualenv -p python3 .venv
+⚠  Could not create backend virtual environment (${venvRes.error ? `${python} not found` : `exit ${venvRes.status}`}).
+   Create it manually with:  cd ${appName}/backend && ${python} -m venv .venv
 `)
-  } else {
-    console.log('Creating backend virtualenv (backend/.venv)…')
-    const venvRes = spawnSync('virtualenv', ['-p', 'python3', '.venv'], {
-      cwd: backendDir,
-      stdio: 'inherit',
-    })
-    if (venvRes.error || venvRes.status !== 0) {
-      console.warn(`
-⚠  virtualenv creation failed (exit ${venvRes.status ?? 'n/a'}).
-   Create it manually with:  cd ${appName}/backend && virtualenv -p python3 .venv
-`)
-    }
   }
 }
 
