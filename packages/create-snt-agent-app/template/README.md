@@ -1,6 +1,6 @@
-# Sample Micro App
+# Sample Agent
 
-A modern React + Flask dashboard for querying the Sensolus public API. This application demonstrates how to build micro applications that integrate with the Sensolus platform using the official design system.
+A modern React + Flask dashboard for querying the Sensolus public API. This application demonstrates how to build agents that integrate with the Sensolus platform using the official design system.
 
 ## Requirements
 

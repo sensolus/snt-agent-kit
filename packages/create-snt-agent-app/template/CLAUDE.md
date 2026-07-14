@@ -58,7 +58,7 @@ The backend acts as a proxy to avoid CORS issues - the frontend calls `/api/orga
 
 ### App descriptor (sensolus-app.yaml)
 
-`sensolus-app.yaml` at the repo root is the single source of truth for the app manifest (landing pages, secrets, database, cron jobs). The Micro App Manager reads it from the git repo at registration time (its `build:` block drives the Jenkins pipeline), and the Dockerfile bakes it into the image so the backend serves it at `/.well-known/sensolus-app` (the `build:` block is stripped at runtime). Edit the YAML — never hardcode descriptor content in `app.py`.
+`sensolus-app.yaml` at the repo root is the single source of truth for the app manifest (landing pages, secrets, database, cron jobs). The Agent Manager reads it from the git repo at registration time (its `build:` block drives the Jenkins pipeline), and the Dockerfile bakes it into the image so the backend serves it at `/.well-known/sensolus-app` (the `build:` block is stripped at runtime). Edit the YAML — never hardcode descriptor content in `app.py`.
 
 ## Sensolus API Authentication
 

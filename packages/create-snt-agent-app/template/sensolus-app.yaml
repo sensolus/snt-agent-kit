@@ -1,6 +1,6 @@
 # Sensolus app descriptor — single source of truth.
 #
-# Read by the Micro App Manager in two places:
+# Read by the Agent Manager in two places:
 #   1. At registration (source_type=repo): fetched from this repo via the git
 #      provider API; the `build:` block drives the generated Jenkins pipeline.
 #   2. At runtime: baked into the image and served at /.well-known/sensolus-app

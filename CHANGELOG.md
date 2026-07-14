@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.14
+
+### `@sensolus/snt-agent-kit`
+
+- Version bump only (publish parity).
+
+### `@sensolus/create-snt-agent-app`
+
+- **Terminology: "micro app" → "agent".** Template docs now say "Sample Agent" / "build agents" instead of "Sample Micro App" / "micro applications", and the descriptor consumer is named the **Agent Manager** (was "Micro App Manager") in `sensolus-app.yaml`, template `CLAUDE.md`, and the changelog. No code or descriptor-format changes.
+
 ## 0.7.13
 
 ### `@sensolus/snt-agent-kit`
@@ -19,7 +29,7 @@
 
 ### `@sensolus/create-snt-agent-app`
 
-- **Single-source app descriptor via `sensolus-app.yaml`** (aligned with `sample_micro_app`). The template now ships a repo-root `sensolus-app.yaml` as the single source of truth for the app manifest — read by the Micro App Manager at registration time (its `build:` block drives the Jenkins pipeline) and baked into the Docker image so `/.well-known/sensolus-app` serves identical content at runtime. `backend/app.py` replaces the hardcoded `APP_DESCRIPTOR` dict with a loader that reads `sensolus-app.(yaml|yml|json)` from the project root and strips the registration-only `build:` block. Adds `pyyaml==6.0.3` to `backend/requirements.txt` and a `COPY sensolus-app.yaml ./` step to the Dockerfile. The scaffolder already substitutes `{{APP_NAME}}` in `.yaml` files, so the descriptor is templated like everything else. Template `CLAUDE.md` documents the pattern.
+- **Single-source app descriptor via `sensolus-app.yaml`** (aligned with `sample_micro_app`). The template now ships a repo-root `sensolus-app.yaml` as the single source of truth for the app manifest — read by the Agent Manager at registration time (its `build:` block drives the Jenkins pipeline) and baked into the Docker image so `/.well-known/sensolus-app` serves identical content at runtime. `backend/app.py` replaces the hardcoded `APP_DESCRIPTOR` dict with a loader that reads `sensolus-app.(yaml|yml|json)` from the project root and strips the registration-only `build:` block. Adds `pyyaml==6.0.3` to `backend/requirements.txt` and a `COPY sensolus-app.yaml ./` step to the Dockerfile. The scaffolder already substitutes `{{APP_NAME}}` in `.yaml` files, so the descriptor is templated like everything else. Template `CLAUDE.md` documents the pattern.
 - **README corrections.** Map keys (`MAPBOX_KEY`, `LOCATIONIQ_KEY`) documented as optional (OSM fallback) instead of required; app-descriptor references point to `sensolus-app.yaml` instead of the removed `APP_DESCRIPTOR` dict; generated layout lists `sensolus-app.yaml`, `.vscode/tasks.json`, the `start-*.sh` scripts, and `CLAUDE.md`; quick start uses the scaffolder-created `backend/.venv` and start scripts (the old sequence ran `pip install` from the wrong directory); hardcoded `cloud.sensolus.com` / `prod-sensolus-token` mentions now name the `SENSOLUS_DOMAIN` / `SENSOLUS_COOKIE_NAME` env vars they default from.
 
 ## 0.7.11
