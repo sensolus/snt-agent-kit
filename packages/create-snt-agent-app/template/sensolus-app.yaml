@@ -6,34 +6,40 @@
 #   2. At runtime: baked into the image and served at /.well-known/sensolus-app
 #      (the `build:` block is dropped there — it's registration-only).
 #
-# See docs/app-descriptor-spec.md in the manager repo for the full schema.
-schemaVersion: 1
+# schemaVersion 2: this file owns the app's features, environment and scheduled
+# actions; the Agent Manager applies them and never edits them. See
+# docs/app-descriptor-spec.md ("Schema (v2)") in the manager repo for the full schema.
+schemaVersion: 2
+
 app:
   name: {{APP_NAME}}
   version: "1.0.0"
-landingPages:
-  - id: overview
-    path: /
-    title: Organisations
-    description: Browse Sensolus organisations
-  - id: organisation-detail
-    path: /organisation/{orgId}
-    title: Organisation detail
-    context: org
-secrets:
-  reverseGeocoding: true
-database: true
-cron:
-  - id: collect-org-stats
-    path: /cron/collect-org-stats
+  # Built for one customer organisation: only a normal organisation can add it, and
+  # its scheduled action names a read role of that type.
+  orgType: normal
+
+features:
+  database: true           # DATABASE_URL and DB_* — the favourite devices live here
+  maps: true               # MAPBOX_KEY, LOCATIONIQ_KEY — the Device browser's map
+  reverseGeocoding: true   # REVERSE_GEOCODING_API_KEY
+  autoDeploy: true         # redeploy when a new image is pushed
+
+# Variables this app needs from whoever runs it. The sample needs none; declare yours
+# here, e.g.:
+#   EXTERNAL_ERP_URL:
+#     required: true
+#     description: Base URL of the customer's ERP
+environment: {}
+
+scheduledActions:
+  - id: daily-summary
+    path: /actions/daily-summary
     method: POST
-    description: Snapshots tracker and user counts per organisation (max one point per day per org)
-    schedule: "0 3 * * *"
-    timezone: Europe/Brussels
+    description: Counts the organisation's devices and how many reported in the last 24 hours
+    cadence: daily         # the platform picks the moment, at night in the organisation's timezone
     timeoutSeconds: 120
-    apiKey:
-      type: ro
-      scope: system
+    role: read
+
 build:
   dockerfile: Dockerfile
   context: .

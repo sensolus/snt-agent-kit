@@ -43,25 +43,6 @@ def ensure_database():
     engine.dispose()
 
 
-def repair_dirty_state():
-    """One-time fix: drop dirty tables left by failed migration races."""
-    uri = get_database_uri()
-    engine = create_engine(uri, isolation_level='AUTOCOMMIT')
-    with engine.connect() as conn:
-        tables = [row[0] for row in conn.execute(
-            text("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")
-        )]
-        if 'favourite_organisations' in tables and 'alembic_version' in tables:
-            # Check if alembic is stuck on a revision that no longer exists (e.g. 002 was removed)
-            row = conn.execute(text("SELECT version_num FROM alembic_version")).fetchone()
-            if row and row[0] not in ('001',):
-                logger.info(f"Repairing dirty alembic state (stuck at {row[0]})...")
-                conn.execute(text("DROP TABLE IF EXISTS favourite_organisations CASCADE"))
-                conn.execute(text("DROP TABLE IF EXISTS alembic_version CASCADE"))
-                logger.info("Cleaned up — migrations will re-run from scratch")
-    engine.dispose()
-
-
 def run_migrations(app=None):
     """Apply pending migrations.
 
@@ -85,5 +66,4 @@ def run_migrations(app=None):
 
 if __name__ == '__main__':
     ensure_database()
-    repair_dirty_state()
     run_migrations()

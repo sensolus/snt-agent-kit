@@ -141,8 +141,10 @@ DB_PASSWORD=snt
 │   │   ├── main.jsx           # Entry point
 │   │   ├── App.jsx            # Router setup
 │   │   ├── pages/             # Page components
-│   │   │   ├── OrganisationList.jsx
-│   │   │   └── OrganisationDetail.jsx
+│   │   │   ├── Home.jsx           # The three tabs, and the API key dialog
+│   │   │   ├── Helloworld.jsx     # Who is looking, and for which organisation
+│   │   │   ├── WidgetShowcase.jsx # Every kit widget
+│   │   │   └── DeviceBrowser.jsx  # Search, list, detail and map of the organisation's devices
 │   │   ├── i18n/              # App translation keys (framework from kit)
 │   │   └── styles/
 │   │       └── app.css        # App-specific styles
@@ -150,10 +152,12 @@ DB_PASSWORD=snt
 │   ├── vite.config.js         # Vite config with proxy
 │   └── package.json           # Node dependencies
 ├── backend/                   # Flask backend
-│   ├── app.py                 # API proxy server
-│   └── requirements.txt       # Python deps (flask, requests)
+│   ├── app.py                 # API proxy server, favourites, the daily-summary action
+│   ├── models.py              # The app's own tables (favourite devices)
+│   ├── migrations/            # Alembic migrations, applied at startup
+│   └── requirements.txt       # Python deps
 ├── Dockerfile                 # Multi-stage build
-└── openapi.json               # Sensolus API spec (reference)
+└── openapi.json               # Sensolus API spec for this app's API key: `node scripts/update-openapi.mjs` (gitignored)
 ```
 
 ### How It Works
@@ -166,11 +170,11 @@ DB_PASSWORD=snt
 ### API Proxy Flow
 
 ```
-Browser → localhost:3000/api/organisations
+Browser → localhost:3000/api/loginInfo
        → Vite proxy
-       → localhost:5000/api/organisations
+       → localhost:5000/api/loginInfo
        → Flask backend
-       → cloud.sensolus.com/rest/api/v2/organisations
+       → cloud.sensolus.com/rest/api/v2/loginInfo
 ```
 
 ## Sensolus API Authentication
@@ -186,7 +190,7 @@ Authorization: Bearer <token>
 ### 2. API Key (Query Parameter)
 API keys are passed as a query parameter:
 ```
-GET /api/organisations?apiKey=<your-key>
+GET /api/loginInfo?apiKey=<your-key>
 ```
 
 **Priority:** Session cookie takes precedence over API key if both are present.

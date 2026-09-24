@@ -50,15 +50,43 @@ This is a Flask + React (Vite) dashboard for querying the Sensolus public API.
 ├── backend/               # Flask backend
 │   ├── app.py             # Flask app (API proxy)
 │   └── requirements.txt   # Python dependencies
+├── scripts/
+│   └── update-openapi.mjs # Downloads openapi.json for this app's API key
 ├── sensolus-app.yaml      # App descriptor — single source of truth
-└── openapi.json           # Sensolus API spec (reference)
+└── openapi.json           # Sensolus API spec for this app's API key (generated, gitignored)
 ```
 
-The backend acts as a proxy to avoid CORS issues - the frontend calls `/api/organisations` which forwards to the Sensolus API.
+The backend acts as a proxy to avoid CORS issues - the frontend calls `/api/loginInfo` or `/api/devices/byFilter`, which forward to the Sensolus API.
+
+The sample is built for one customer organisation (`orgType: normal`). Its three tabs are the starting points to build from:
+
+- **Hello world** (`pages/Helloworld.jsx`): who is looking and for which organisation, from `/api/loginInfo`.
+- **Widgets** (`pages/WidgetShowcase.jsx`): every kit widget. Use these, never hand-rolled look-alikes.
+- **Device browser** (`pages/DeviceBrowser.jsx`): search the organisation's devices, pick one, see its detail and last position on the map. Favourites are this app's own data, per user, in its database (`models.py`, `migrations/`).
+
+The descriptor's one scheduled action, `POST /actions/daily-summary`, is the shape of a nightly job: the platform calls it through the Agent Manager with a read-only key of the organisation (`X-Sensolus-Auth`).
 
 ### App descriptor (sensolus-app.yaml)
 
-`sensolus-app.yaml` at the repo root is the single source of truth for the app manifest (landing pages, secrets, database, cron jobs). The Agent Manager reads it from the git repo at registration time (its `build:` block drives the Jenkins pipeline), and the Dockerfile bakes it into the image so the backend serves it at `/.well-known/sensolus-app` (the `build:` block is stripped at runtime). Edit the YAML — never hardcode descriptor content in `app.py`.
+`sensolus-app.yaml` at the repo root is the single source of truth for the app manifest (schemaVersion 2: the organisation type it is built for, its features, its environment and its scheduled actions). The Agent Manager reads it from the git repo at registration time (its `build:` block drives the Jenkins pipeline), and the Dockerfile bakes it into the image so the backend serves it at `/.well-known/sensolus-app` (the `build:` block is stripped at runtime). Edit the YAML — never hardcode descriptor content in `app.py`.
+
+### Sensolus API spec (openapi.json)
+
+`openapi.json` at the repo root describes the Sensolus API **as this app's API key sees
+it**: the platform tailors it to the key's role, its organisation's plan and its
+organisation type. It is generated, gitignored, and never edited by hand.
+
+- Before writing code against the Sensolus API, run `node scripts/update-openapi.mjs`. It
+  reads `SENSOLUS_DOMAIN` and `SENSOLUS_API_KEY` from `.env`. Run it again after every
+  platform release.
+- `info.version` in the file is the platform release it describes. If the file is missing,
+  or its release is older than the platform's, refresh it before relying on it.
+- An endpoint that is not in the file is not available to this key. Do not call it from
+  memory, or from another app's copy of the spec.
+- The file lists only what the key's role may call, so a read-only key gives a spec
+  without a single write endpoint. If the app has to change something and the file offers
+  no way to, the key may be read-only: ask for a key with the role the app needs and
+  refresh the file, rather than concluding that the platform cannot do it.
 
 ## Sensolus API Authentication
 
@@ -73,7 +101,7 @@ Authorization: Bearer <token>
 ### 2. API Key (Query Parameter)
 API keys are passed as a query parameter to the Sensolus API:
 ```
-GET /rest/api/v2/organisations?apiKey=<key>
+GET /rest/api/v2/loginInfo?apiKey=<key>
 ```
 
 **Priority:** Session cookie takes precedence over API key if both are present.
@@ -216,7 +244,7 @@ function MyComponent() {
 
   return (
     <div>
-      <h1>{t('orgList.title')}</h1>
+      <h1>{t('home.tab.devices')}</h1>
       <span>{formatNumber(1234, intlLocale)}</span>
       <span>{formatShortDate('2026-03-23', intlLocale, timezone)}</span>
     </div>
