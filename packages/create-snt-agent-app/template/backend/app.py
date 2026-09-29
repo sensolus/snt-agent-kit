@@ -507,13 +507,18 @@ def bootstrap():
     database with no tables and no scheduler.
     """
     from init_db import ensure_database, run_migrations
+    # Two steps, each allowed to fail on its own: a failed database check must not
+    # keep the migrations from running.
     try:
         ensure_database()
+    except Exception as e:
+        logger.warning(f"Could not check or create the database: {e}")
+    try:
         # Pass the app: letting init_db re-import this module would run every
         # module-level statement a second time.
         run_migrations(app)
     except Exception as e:
-        logger.warning(f"DB init skipped: {e}")
+        logger.warning(f"Migrations skipped: {e}")
     scheduler.start()
 
 

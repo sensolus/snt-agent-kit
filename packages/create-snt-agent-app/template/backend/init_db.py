@@ -21,25 +21,36 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from db_config import get_database_uri
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import OperationalError
 
 
 def ensure_database():
+    """Make sure the app's own database exists.
+
+    On the platform the agent manager has already created it, and the app may not
+    connect to the 'postgres' maintenance database, so the app's own database is
+    tried first. Only when it does not exist yet, as on a fresh local Postgres, is
+    it created through 'postgres'.
+    """
     uri = get_database_uri()
     db_name = os.getenv('DB_NAME', '{{APP_NAME}}')
 
-    # Connect to 'postgres' maintenance DB to check/create ours
+    engine = create_engine(uri)
+    try:
+        with engine.connect():
+            logger.info(f"Database '{db_name}' already exists")
+            return
+    except OperationalError as e:
+        if 'does not exist' not in str(e):
+            raise
+    finally:
+        engine.dispose()
+
     maintenance_uri = uri.rsplit('/', 1)[0] + '/postgres'
     engine = create_engine(maintenance_uri, isolation_level='AUTOCOMMIT')
     with engine.connect() as conn:
-        exists = conn.execute(
-            text("SELECT 1 FROM pg_database WHERE datname = :name"),
-            {'name': db_name}
-        ).fetchone()
-        if not exists:
-            conn.execute(text(f'CREATE DATABASE "{db_name}"'))
-            logger.info(f"Created database '{db_name}'")
-        else:
-            logger.info(f"Database '{db_name}' already exists")
+        conn.execute(text(f'CREATE DATABASE "{db_name}"'))
+        logger.info(f"Created database '{db_name}'")
     engine.dispose()
 
 
