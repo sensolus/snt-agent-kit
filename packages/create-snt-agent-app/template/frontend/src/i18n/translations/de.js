@@ -1,74 +1,50 @@
 export default {
   // Home / tabs
-  'home.tab.overview': 'Übersicht',
-  'home.tab.explore': 'Erkunden',
+  'home.tab.helloworld': 'Hallo Welt',
   'home.tab.showcase': 'Widgets',
+  'home.tab.devices': 'Geräte',
 
-  // Overview
-  'overview.title': 'Übersicht',
-  'overview.empty': 'Noch keine Snapshots erfasst. Der tägliche Snapshot füllt dieses Diagramm.',
-  'overview.chart.title': 'Tageswerte über alle Organisationen',
-  'overview.series.orgs': 'Organisationen',
-  'overview.series.trackers': 'Tracker',
-  'overview.series.users': 'Benutzer',
-  'overview.table.title': 'Verlauf der täglichen Momentaufnahmen',
-  'overview.table.date': 'Datum',
+  // Auth dialog
+  'auth.dialog.title': 'Sensolus-API-Schlüssel erforderlich',
+  'auth.dialog.description':
+    'Es wurde keine aktive Sitzung gefunden. Geben Sie einen Sensolus-API-Schlüssel ein, um Daten zu laden. Der Schlüssel wird für diese Browsersitzung gespeichert und von allen Tabs gemeinsam genutzt.',
+  'auth.dialog.failed': 'API-Schlüssel konnte nicht gespeichert werden',
+  'auth.apiKeyPlaceholder': 'API-Schlüssel...',
+  'auth.changeApiKey': 'API-Schlüssel ändern',
 
-  // Common
+  // Helloworld page
+  'helloworld.title': (name) => (name ? `Hallo, ${name}` : 'Hallo'),
+  'helloworld.intro':
+    'Das teilt die Sensolus-Plattform dieser App über Sie mit. Eine kundenspezifische App beginnt hier: Die Organisation unten ist die, für die sie gebaut ist.',
+  'helloworld.fetchFailed': 'Ihre Anmeldeinformationen konnten nicht geladen werden',
+  'helloworld.user': 'Benutzer',
+  'helloworld.email': 'E-Mail',
+  'helloworld.signedInWith': 'Angemeldet mit',
+  'helloworld.organisation': 'Organisation',
+  'helloworld.organisationType': 'Organisationstyp',
+  'helloworld.partner': 'Partner',
+  'helloworld.language': 'Sprache',
+  'helloworld.timezone': 'Zeitzone',
+  'helloworld.notNormal':
+    'Diese App ist für eine Kundenorganisation gebaut (orgType: normal in sensolus-app.yaml). Nur eine Kundenorganisation kann sie hinzufügen; Sie sehen sie aus einer anderen Art von Organisation.',
 
-  // Table widget
-
-  // CheckboxList widget
-
-  // Sidepanel
-
-  // DateRangePicker presets
-
-  // OrganisationList page
-  'orgList.title': 'Organisationen',
-  'orgList.apiKeyPlaceholder': 'API-Schlüssel...',
-  'orgList.searchPlaceholder': 'Nach Name suchen...',
-  'orgList.enterApiKey': 'Bitte geben Sie einen API-Schlüssel ein',
-  'orgList.fetchFailed': 'Organisationen konnten nicht geladen werden',
-  'orgList.loadingOrgs': 'Organisationen werden geladen...',
-  'orgList.showing': (shown, total) => `${shown} von ${total} Organisationen`,
-  'orgList.noOrgsFound': 'Keine Organisationen gefunden',
-  'orgList.noOrgsMatch': 'Keine Organisationen entsprechen den aktuellen Filtern.',
-  'orgList.activeSubscriptions': 'Aktive Abonnements',
-  'orgList.onlyActive': 'Nur mit aktiven Abonnements',
-  'orgList.minSubscriptions': (n) => `Min. Abonnements: ${n}`,
-  'orgList.organisationType': 'Organisationstyp',
-  'orgList.favourites': 'Favoriten',
-  'orgList.onlyFavourites': 'Nur Favoriten',
-  'orgList.addFavourite': 'Zu Favoriten hinzufügen',
-  'orgList.removeFavourite': 'Aus Favoriten entfernen',
-  'orgList.summary.favourites': 'Favoriten',
-  'orgList.summary.organisations': 'Organisationen',
-  'orgList.summary.totalTrackers': 'Tracker gesamt',
-  'orgList.summary.activeSubscriptions': 'Aktive Abonnements',
-  'orgList.summary.totalUsers': 'Benutzer gesamt',
-  'orgList.summary.avgOnlineRatio': 'Durchschn. Online-Rate',
-  'orgList.col.name': 'Name',
-  'orgList.col.id': 'ID',
-  'orgList.col.type': 'Typ',
-  'orgList.col.trackers': 'Tracker',
-  'orgList.col.activeSubs': 'Aktive Abon.',
-  'orgList.col.users': 'Benutzer',
-  'orgList.col.online': 'Online',
-  'orgList.stat.id': 'ID',
-  'orgList.stat.trackers': 'Tracker',
-  'orgList.stat.activeSubscriptions': 'Aktive Abonnements',
-  'orgList.stat.users': 'Benutzer',
-  'orgList.stat.online': 'Online',
-
-  // OrganisationDetail page
-  'orgDetail.notFound': 'Organisation nicht gefunden',
-  'orgDetail.notAvailable': 'Organisationsdaten nicht verfügbar',
-  'orgDetail.goBackPrompt': 'Bitte gehen Sie zurück zur Liste und wählen Sie eine Organisation.',
-  'orgDetail.basicInfo': 'Allgemeine Informationen',
-  'orgDetail.metrics': 'Metriken',
-  'orgDetail.statistics': 'Statistiken',
-  'orgDetail.otherDetails': 'Weitere Details',
-  'orgDetail.locked': 'Gesperrt',
-  'orgDetail.active': 'Aktiv',
+  // Device browser page
+  'devices.searchPlaceholder': 'Seriennummer oder Name...',
+  'devices.favourites': 'Favoriten',
+  'devices.onlyFavourites': 'Nur Favoriten',
+  'devices.addFavourite': 'Zu Favoriten hinzufügen',
+  'devices.removeFavourite': 'Aus Favoriten entfernen',
+  'devices.loading': 'Geräte werden geladen...',
+  'devices.fetchFailed': 'Geräte konnten nicht geladen werden',
+  'devices.showing': (shown, total) => `${shown} von ${total} Geräten`,
+  'devices.noneFound': 'Keine Geräte gefunden',
+  'devices.noneMatch': 'Keine Geräte entsprechen Ihren aktuellen Filtern.',
+  'devices.serial': 'Seriennummer',
+  'devices.product': 'Produkt',
+  'devices.status': 'Status',
+  'devices.lastSeen': 'Zuletzt gesehen',
+  'devices.lastPosition': 'Letzte Position',
+  'devices.lastAddress': 'Letzte Adresse',
+  'devices.noPosition': 'Dieses Gerät hat noch keine Position gemeldet.',
+  'devices.pickOne': 'Wählen Sie ein Gerät, um seine Details und seine letzte Position zu sehen.',
 }

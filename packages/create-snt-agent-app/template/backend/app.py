@@ -1,7 +1,7 @@
 import os
 import sys
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from flask import Flask, request, jsonify, send_from_directory, session
 from flask_apscheduler import APScheduler
 from flask_socketio import SocketIO
@@ -219,20 +219,6 @@ def get_login_info():
     return jsonify(data), status_code
 
 
-@app.route('/api/organisations')
-def get_organisations():
-    """Get list of organisations."""
-    logger.info("=== GET /api/organisations ===")
-
-    extra_params = {}
-    name_filter = request.args.get('nameFilter', '')
-    if name_filter:
-        extra_params['nameFilter'] = name_filter
-
-    data, status_code = make_sensolus_request('/organisations', extra_params)
-    return jsonify(data), status_code
-
-
 @app.route('/api/geozones')
 def get_geozones():
     """Get all geozones for an organisation."""
@@ -362,76 +348,124 @@ def _get_user_key():
 
 @app.route('/api/favourites')
 def get_favourites():
-    """Get all favourite organisation IDs for the current user."""
+    """Get the serials of the current user's favourite devices."""
     logger.info("=== GET /api/favourites ===")
     try:
-        from models import FavouriteOrganisation
+        from models import FavouriteDevice
         user_key = _get_user_key()
         if not user_key:
             logger.info("No user key — returning empty favourites")
             return jsonify([])
-        favs = FavouriteOrganisation.query.filter_by(user_key=user_key).all()
+        favs = FavouriteDevice.query.filter_by(user_key=user_key).all()
         logger.info(f"Returning {len(favs)} favourites for {user_key}")
-        return jsonify([f.org_id for f in favs])
+        return jsonify([f.serial for f in favs])
     except Exception as e:
         logger.exception(f"Error in get_favourites: {e}")
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/favourites/<int:org_id>', methods=['PUT'])
-def add_favourite(org_id):
-    """Add an organisation to favourites for the current user."""
-    logger.info(f"=== PUT /api/favourites/{org_id} ===")
+@app.route('/api/favourites/<serial>', methods=['PUT'])
+def add_favourite(serial):
+    """Add a device to the current user's favourites."""
+    logger.info(f"=== PUT /api/favourites/{serial} ===")
     try:
-        from models import FavouriteOrganisation
+        from models import FavouriteDevice
         user_key = _get_user_key()
         if not user_key:
             logger.warning("Cannot add favourite — no user key")
             return jsonify({'error': 'Not authenticated'}), 401
-        existing = FavouriteOrganisation.query.filter_by(user_key=user_key, org_id=org_id).first()
+        existing = FavouriteDevice.query.filter_by(user_key=user_key, serial=serial).first()
         if not existing:
-            fav = FavouriteOrganisation(user_key=user_key, org_id=org_id)
-            db.session.add(fav)
+            db.session.add(FavouriteDevice(user_key=user_key, serial=serial))
             db.session.commit()
-            logger.info(f"Added favourite org {org_id} for {user_key}")
-        else:
-            logger.info(f"Favourite org {org_id} already exists for {user_key}")
-        return jsonify({'orgId': org_id, 'favourite': True})
+            logger.info(f"Added favourite device {serial} for {user_key}")
+        return jsonify({'serial': serial, 'favourite': True})
     except Exception as e:
         db.session.rollback()
         logger.exception(f"Error in add_favourite: {e}")
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/favourites/<int:org_id>', methods=['DELETE'])
-def remove_favourite(org_id):
-    """Remove an organisation from favourites for the current user."""
-    logger.info(f"=== DELETE /api/favourites/{org_id} ===")
+@app.route('/api/favourites/<serial>', methods=['DELETE'])
+def remove_favourite(serial):
+    """Remove a device from the current user's favourites."""
+    logger.info(f"=== DELETE /api/favourites/{serial} ===")
     try:
-        from models import FavouriteOrganisation
+        from models import FavouriteDevice
         user_key = _get_user_key()
         if not user_key:
             logger.warning("Cannot remove favourite — no user key")
             return jsonify({'error': 'Not authenticated'}), 401
-        fav = FavouriteOrganisation.query.filter_by(user_key=user_key, org_id=org_id).first()
+        fav = FavouriteDevice.query.filter_by(user_key=user_key, serial=serial).first()
         if fav:
             db.session.delete(fav)
             db.session.commit()
-            logger.info(f"Removed favourite org {org_id} for {user_key}")
-        else:
-            logger.info(f"Favourite org {org_id} not found for {user_key}")
-        return jsonify({'orgId': org_id, 'favourite': False})
+            logger.info(f"Removed favourite device {serial} for {user_key}")
+        return jsonify({'serial': serial, 'favourite': False})
     except Exception as e:
         db.session.rollback()
         logger.exception(f"Error in remove_favourite: {e}")
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/cron/collect-org-stats', methods=['POST'])
-def collect_org_stats():
-    """Snapshot tracker and user counts for every org reachable via the manager-provided API key.
+def _parse_timestamp(value):
+    """A platform timestamp (ISO 8601, 'Z' for UTC) as an aware datetime, or None."""
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).replace('Z', '+00:00'))
+    except ValueError:
+        return None
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
 
-    Idempotent within a day: re-running overwrites the same (org_id, snapshot_date) row.
+
+# POST /devices/byFilter returns at most this many devices per call.
+DEVICE_PAGE_SIZE = 5000
+
+
+def _fetch_all_devices(api_key, fields):
+    """Every device the key sees, one page at a time.
+
+    An IDENTIFIER filter with an empty value matches all of them. The include* flags
+    leave out what the caller doesn't read, which spares the platform the work.
+    """
+    devices = []
+    while True:
+        response = requests.post(
+            f"{SENSOLUS_BASE_URL}/devices/byFilter",
+            params={
+                'apiKey': api_key,
+                'fields': fields,
+                'includeCustomData': 'false',
+                'includeSubscriptionInfo': 'false',
+                'includeProfileInfo': 'false',
+                'includeLocationData': 'false',
+            },
+            json={
+                'maxResults': DEVICE_PAGE_SIZE,
+                'startIndex': len(devices),
+                'filter': {'field': 'IDENTIFIER', 'value': '', 'type': 'STRING',
+                           'includedNull': False, 'includedNotNull': False},
+            },
+            timeout=60,
+        )
+        response.raise_for_status()
+        page = response.json()
+        batch = page.get('data') or []
+        devices.extend(batch)
+        if not batch or len(devices) >= page.get('count', 0):
+            return devices
+
+
+@app.route('/actions/daily-summary', methods=['POST'])
+def daily_summary():
+    """The one scheduled action sensolus-app.yaml declares (scheduledActions).
+
+    The platform calls it once a day, through the Agent Manager, with a read-only key
+    of the organisation that added the app (X-Sensolus-Auth). It counts that
+    organisation's devices and how many reported in the last 24 hours, and logs the
+    result: the shape of a real job (a report, an alert, a sync), not one in itself.
+    Test it from the Agent Manager's Descriptor tab.
     """
     unauthorized = require_manager_auth()
     if unauthorized:
@@ -441,74 +475,26 @@ def collect_org_stats():
     if not api_key:
         return jsonify({"error": f"Missing {HEADER_SENSOLUS_AUTH} header"}), 400
 
-    from datetime import date
-    from sqlalchemy.dialects.postgresql import insert as pg_insert
-    from models import OrgDailyStat
-
-    logger.info("=== POST /cron/collect-org-stats ===")
+    logger.info("=== POST /actions/daily-summary ===")
     try:
-        response = requests.get(
-            f"{SENSOLUS_BASE_URL}/organisations",
-            params={'apiKey': api_key},
-            timeout=60,
-        )
-        response.raise_for_status()
-        orgs = response.json()
+        devices = _fetch_all_devices(api_key, 'serial,lastSeenAlive')
     except requests.exceptions.RequestException as e:
-        logger.exception(f"Failed to fetch organisations: {e}")
-        return jsonify({"error": f"Failed to fetch organisations: {e}"}), 502
+        logger.exception(f"Failed to fetch devices: {e}")
+        return jsonify({"error": f"Failed to fetch devices: {e}"}), 502
 
-    today = date.today()
-    count = 0
-    for org in orgs:
-        metrics = (org.get('statistics') or {}).get('metrics') or {}
-        stmt = pg_insert(OrgDailyStat.__table__).values(
-            org_id=org['id'],
-            org_name=org.get('name'),
-            snapshot_date=today,
-            tracker_count=int(metrics.get('NUMBER_OF_TRACKERS') or 0),
-            user_count=int(metrics.get('NUMBER_OF_USERS') or 0),
-        ).on_conflict_do_update(
-            constraint='uq_org_day',
-            set_={
-                'org_name': org.get('name'),
-                'tracker_count': int(metrics.get('NUMBER_OF_TRACKERS') or 0),
-                'user_count': int(metrics.get('NUMBER_OF_USERS') or 0),
-                'captured_at': datetime.now(timezone.utc),
-            },
-        )
-        db.session.execute(stmt)
-        count += 1
-    db.session.commit()
-    logger.info(f"Snapshotted {count} orgs for {today.isoformat()}")
-    return jsonify({"snapshotDate": today.isoformat(), "orgsSnapshotted": count})
-
-
-@app.route('/api/org-stats/totals')
-def get_org_stats_totals():
-    """Daily totals across all orgs: org count, total trackers, total users."""
-    logger.info("=== GET /api/org-stats/totals ===")
-    from models import OrgDailyStat
-    rows = (
-        db.session.query(
-            OrgDailyStat.snapshot_date,
-            db.func.count(OrgDailyStat.id),
-            db.func.sum(OrgDailyStat.tracker_count),
-            db.func.sum(OrgDailyStat.user_count),
-        )
-        .group_by(OrgDailyStat.snapshot_date)
-        .order_by(OrgDailyStat.snapshot_date)
-        .all()
-    )
-    return jsonify([
-        {
-            'date': d.isoformat(),
-            'orgCount': int(orgs or 0),
-            'trackerTotal': int(trackers or 0),
-            'userTotal': int(users or 0),
-        }
-        for d, orgs, trackers, users in rows
-    ])
+    since = datetime.now(timezone.utc) - timedelta(hours=24)
+    seen = 0
+    for device in devices:
+        seen_at = _parse_timestamp(device.get('lastSeenAlive'))
+        if seen_at and seen_at > since:
+            seen += 1
+    summary = {
+        'devices': len(devices),
+        'seenLast24h': seen,
+        'generatedAt': datetime.now(timezone.utc).isoformat(),
+    }
+    logger.info(f"Daily summary: {summary}")
+    return jsonify(summary)
 
 
 def bootstrap():
@@ -521,13 +507,18 @@ def bootstrap():
     database with no tables and no scheduler.
     """
     from init_db import ensure_database, run_migrations
+    # Two steps, each allowed to fail on its own: a failed database check must not
+    # keep the migrations from running.
     try:
         ensure_database()
+    except Exception as e:
+        logger.warning(f"Could not check or create the database: {e}")
+    try:
         # Pass the app: letting init_db re-import this module would run every
         # module-level statement a second time.
         run_migrations(app)
     except Exception as e:
-        logger.warning(f"DB init skipped: {e}")
+        logger.warning(f"Migrations skipped: {e}")
     scheduler.start()
 
 

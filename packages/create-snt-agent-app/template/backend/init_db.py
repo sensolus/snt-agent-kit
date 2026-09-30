@@ -21,44 +21,36 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from db_config import get_database_uri
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import OperationalError
 
 
 def ensure_database():
+    """Make sure the app's own database exists.
+
+    On the platform the agent manager has already created it, and the app may not
+    connect to the 'postgres' maintenance database, so the app's own database is
+    tried first. Only when it does not exist yet, as on a fresh local Postgres, is
+    it created through 'postgres'.
+    """
     uri = get_database_uri()
     db_name = os.getenv('DB_NAME', '{{APP_NAME}}')
 
-    # Connect to 'postgres' maintenance DB to check/create ours
+    engine = create_engine(uri)
+    try:
+        with engine.connect():
+            logger.info(f"Database '{db_name}' already exists")
+            return
+    except OperationalError as e:
+        if 'does not exist' not in str(e):
+            raise
+    finally:
+        engine.dispose()
+
     maintenance_uri = uri.rsplit('/', 1)[0] + '/postgres'
     engine = create_engine(maintenance_uri, isolation_level='AUTOCOMMIT')
     with engine.connect() as conn:
-        exists = conn.execute(
-            text("SELECT 1 FROM pg_database WHERE datname = :name"),
-            {'name': db_name}
-        ).fetchone()
-        if not exists:
-            conn.execute(text(f'CREATE DATABASE "{db_name}"'))
-            logger.info(f"Created database '{db_name}'")
-        else:
-            logger.info(f"Database '{db_name}' already exists")
-    engine.dispose()
-
-
-def repair_dirty_state():
-    """One-time fix: drop dirty tables left by failed migration races."""
-    uri = get_database_uri()
-    engine = create_engine(uri, isolation_level='AUTOCOMMIT')
-    with engine.connect() as conn:
-        tables = [row[0] for row in conn.execute(
-            text("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")
-        )]
-        if 'favourite_organisations' in tables and 'alembic_version' in tables:
-            # Check if alembic is stuck on a revision that no longer exists (e.g. 002 was removed)
-            row = conn.execute(text("SELECT version_num FROM alembic_version")).fetchone()
-            if row and row[0] not in ('001',):
-                logger.info(f"Repairing dirty alembic state (stuck at {row[0]})...")
-                conn.execute(text("DROP TABLE IF EXISTS favourite_organisations CASCADE"))
-                conn.execute(text("DROP TABLE IF EXISTS alembic_version CASCADE"))
-                logger.info("Cleaned up — migrations will re-run from scratch")
+        conn.execute(text(f'CREATE DATABASE "{db_name}"'))
+        logger.info(f"Created database '{db_name}'")
     engine.dispose()
 
 
@@ -85,5 +77,4 @@ def run_migrations(app=None):
 
 if __name__ == '__main__':
     ensure_database()
-    repair_dirty_state()
     run_migrations()

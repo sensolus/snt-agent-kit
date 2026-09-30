@@ -85,13 +85,13 @@ body {
 }
 
 /* Card View */
-.org-grid {
+.item-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 20px;
 }
 
-.org-card {
+.item-card {
   background: var(--snt-bg-zebra);
   border-radius: var(--snt-border-radius-lg);
   padding: 20px;
@@ -99,40 +99,40 @@ body {
   transition: all 0.2s;
 }
 
-.org-card:hover {
+.item-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px var(--snt-black-10);
 }
 
-.org-name {
+.item-name {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--snt-blue-darkest);
   margin-bottom: 8px;
 }
 
-.org-type {
+.item-type {
   display: inline-block;
   margin-bottom: 12px;
 }
 
-.org-details {
+.item-details {
   font-size: 14px;
   color: var(--snt-grey);
 }
 
-.org-details p {
+.item-details p {
   margin-bottom: 6px;
 }
 
-.org-stat {
+.item-stat {
   display: flex;
   justify-content: space-between;
   padding: 8px 0;
   border-top: 1px solid var(--snt-grey-lightest);
 }
 
-.org-stat:first-of-type {
+.item-stat:first-of-type {
   margin-top: 12px;
 }
 
@@ -191,8 +191,8 @@ body {
   max-width: 300px;
 }
 
-/* Org card header with star */
-.org-card-header {
+/* Card header with star */
+.item-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -221,8 +221,8 @@ body {
   color: var(--snt-yellow);
 }
 
-/* Clickable org card */
-.org-card-clickable {
+/* Clickable card */
+.item-card-clickable {
   cursor: pointer;
 }
 
@@ -319,6 +319,39 @@ body {
 .summary-stat-active {
   border-color: var(--snt-blue);
   box-shadow: 0 0 0 2px var(--snt-blue-light);
+}
+
+/* Selected card */
+.item-card-selected {
+  border-color: var(--snt-blue);
+  box-shadow: 0 0 0 2px var(--snt-blue-light);
+}
+
+/* Device browser: the list and the picked device side by side */
+.device-browser {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(340px, 1.4fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.device-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.device-list .item-card:hover {
+  transform: none;
+}
+
+.device-detail {
+  position: sticky;
+  top: 16px;
+}
+
+.device-map {
+  margin-top: 16px;
 }
 
 /* Page with Sidepanel Layout */

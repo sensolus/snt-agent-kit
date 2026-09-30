@@ -13,4 +13,6 @@ def get_database_uri():
     db = os.getenv('DB_NAME', '{{APP_NAME}}')
     user = os.getenv('DB_USER', 'snt')
     password = os.getenv('DB_PASSWORD', 'snt')
-    return f'postgresql://{user}:{password}@{host}:{port}/{db}'
+    # The driver is named on purpose: from SQLAlchemy 2.1 a bare postgresql:// URL means
+    # psycopg (v3), and requirements.txt installs psycopg2.
+    return f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}'

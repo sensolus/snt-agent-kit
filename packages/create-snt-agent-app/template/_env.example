@@ -15,6 +15,14 @@
 MAPBOX_KEY=
 LOCATIONIQ_KEY=
 
+# The Sensolus platform, and an API key of the organisation this app is for. The key is
+# only used by `node scripts/update-openapi.mjs`, which downloads the API spec tailored
+# to it into openapi.json. The key's role decides which endpoints that spec lists, so use
+# one with the role the app needs: a read-only key gives a spec without any write endpoint.
+# The backend reads SENSOLUS_DOMAIN too (default shown).
+SENSOLUS_DOMAIN=cloud.sensolus.com
+SENSOLUS_API_KEY=
+
 # PostgreSQL connection (defaults shown; see README "Database Configuration")
 #DB_HOST=localhost
 #DB_PORT=5432

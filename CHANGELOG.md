@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.8.2
+
+### `@sensolus/snt-agent-kit`
+
+- Version bump only (publish parity).
+
+### `@sensolus/create-snt-agent-app` 0.5.0
+
+- **The template is now a sample for one customer organisation.** It replaces the organisation list, which only made sense with a Sensolus or partner key. Three tabs:
+  - **Hello world**: who is signed in, with which credential, and for which organisation (its type, partner, language and timezone), from `/api/loginInfo`. It warns when the organisation is not a normal one.
+  - **Widgets**: the widget showcase, unchanged.
+  - **Device browser**: searches the organisation's devices by serial or name (`POST /api/devices/byFilter` with an `IDENTIFIER` filter), stars favourites, and shows the picked device's details and last position on the map.
+- **Favourites are devices**, per user, by serial: `GET /api/favourites`, `PUT` / `DELETE /api/favourites/<serial>`, table `favourite_devices`. The migration chain starts over at `001_add_favourite_devices`. The organisation favourites, the daily organisation stats with their cron job, and `/api/organisations` are gone.
+- **`sensolus-app.yaml` is `schemaVersion: 2`**: `app.orgType: normal`, a `features` block (`database`, `maps`, `reverseGeocoding`, `autoDeploy`), an empty `environment`, and one scheduled action, `POST /actions/daily-summary` (`cadence: daily`, `role: read`), which counts the organisation's devices and how many reported in the last 24 hours. **It needs an Agent Manager that reads schemaVersion 2**; an older one refuses the file with "schemaVersion must be 1".
+- `init_db.py` drops `repair_dirty_state()`, a one-time repair for the old organisation-favourites table.
+- **Fixed: a new app's image crashed at start with `No module named 'psycopg'`** once SQLAlchemy 2.1 was out. `flask-sqlalchemy` pulled SQLAlchemy unpinned, and from 2.1 a bare `postgresql://` URL means psycopg (v3), while the template installs psycopg2. `db_config.py` now names `postgresql+psycopg2://`, and `requirements.txt` pins `SQLAlchemy==2.0.54`. An app made from an earlier template needs the same two lines before its next build.
+- **Fixed: a new app could start with an empty database** where the platform does not let apps connect to the `postgres` maintenance database. At start-up `ensure_database()` connected to `postgres` to look for the app's database, and the migrations ran in the same `try`. A refused connection therefore skipped them too, and the app started without its tables. `ensure_database()` now tries the app's own database first and goes through `postgres` only to create a missing one. The migrations run even when that check fails. `migrations/env.py` also keeps the app's existing loggers (`disable_existing_loggers=False`): the migrations run inside the app, and Alembic's default silenced the app's own logging from then on. An app made from an earlier template needs the same change in `init_db.py`, `app.py` and `migrations/env.py`.
+- **`openapi.json` is downloaded for the app instead of shipped in the template.** The platform tailors the spec to the API key that asks for it (its role, its organisation's plan and type), so a copy baked into the template described nobody's key, and it never changed version.
+  - The scaffolder asks for the platform domain and an API key of the organisation the app is for. It downloads `GET https://<domain>/rest/api/v2/openapi.json` (key sent as a Bearer token, never in the URL) and saves the domain and key in the new app's `.env`.
+  - Flags for non-interactive use: `--api-key <key>`, `--domain <domain>`, `--skip-openapi`. A failed download warns and still creates the app.
+  - The domain may be typed as a host (`dev.sensolus.com`), with `https://` and a trailing slash, or as a link copied from the browser: only the host is used, and only the host goes into `.env`. A platform that cannot be reached says why (an unknown host, a refused connection, a certificate), and an unknown host asks whether the domain is right.
+  - New `scripts/update-openapi.mjs` in the template refreshes the file later, from `SENSOLUS_DOMAIN` / `SENSOLUS_API_KEY` in `.env`. It refuses an HTML page (the platform answers unknown paths with 200 and its single-page app) and JSON that is not an OpenAPI document.
+  - The spec lists only what the key's role may call, so a read-only key gives one without any write endpoint. The prompt, `.env.example`, this package's README and the template `CLAUDE.md` say to use a key with the role the app needs, and `CLAUDE.md` tells the coding agent to ask for one rather than conclude that the platform cannot do something.
+  - `openapi.json` is gitignored. `.env.example` gains `SENSOLUS_DOMAIN` and `SENSOLUS_API_KEY`. The template `CLAUDE.md` tells the coding agent to refresh the spec before API work and after every platform release, to read `info.version`, and not to call endpoints the spec does not list.
+- The template README and CLAUDE.md, this package's README and the scaffolder's closing hints describe the new sample.
+- First tests for the scaffolder: `npm test` (node's built-in runner, `packages/create-snt-agent-app/test/`), including two end-to-end runs of the scaffolder.
+
 ## 0.8.1
 
 ### `@sensolus/snt-agent-kit`

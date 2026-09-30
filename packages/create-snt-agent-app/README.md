@@ -5,6 +5,12 @@ Scaffold a new Sensolus agent app: a React (Vite) frontend wired to
 plus a Flask backend that proxies the Sensolus public API, with PostgreSQL,
 migrations, Docker, and Jenkins CI included.
 
+The generated app is a working sample for one customer organisation, in three
+tabs: **Hello world** (who is signed in, for which organisation), **Widgets**
+(the kit's components) and **Device browser** (search the organisation's
+devices, star favourites, see a device's last position on the map). It has one
+scheduled action, a daily summary of the organisation's devices.
+
 Widgets, theme, colors, and the i18n framework all come from
 `@sensolus/snt-agent-kit` — see its README for the component reference and
 provider API. This README covers the *generated app*: how the pieces fit
@@ -30,6 +36,32 @@ starts both servers side by side.
 falls back to OpenStreetMap raster tiles (no vector basemap, no satellite
 layer, no geocoder).
 
+### The API spec (`openapi.json`)
+
+The scaffolder asks for an API key of the organisation the app is for, and
+downloads the Sensolus API spec tailored to that key into `openapi.json`: only
+the endpoints the key's role, plan and organisation type can use. So give it a
+key with the role the app needs: a read-only key gives a spec without any write
+endpoint. It saves the domain and key in `.env` (gitignored), so the app
+refreshes the spec itself:
+
+```bash
+node scripts/update-openapi.mjs      # after every platform release
+```
+
+Non-interactive, or against another platform:
+
+```bash
+npm create @sensolus/snt-agent-app my-app -- --api-key <key> --domain dev.sensolus.com
+npm create @sensolus/snt-agent-app my-app -- --skip-openapi   # fetch it later
+```
+
+`--domain` takes the host, or the platform's address as the browser shows it
+(`https://dev.sensolus.com/`): only the host is used.
+
+The file is gitignored and never edited by hand. Its `info.version` is the
+platform release it describes.
+
 Open http://localhost:3000. The Vite dev server proxies `/api/*` to Flask on
 `:5000`. In production, Flask serves the built frontend from `frontend/dist/`
 and the same `/api/*` endpoints, so one container hosts both.
@@ -52,7 +84,7 @@ my-app/
 │   ├── package.json
 │   └── eslint.config.js      # blocks kit deep imports + Snt* re-declarations
 ├── backend/                  # Flask API + static host
-│   ├── app.py                # routes: /api/*, /cron/*, /.well-known/sensolus-app
+│   ├── app.py                # routes: /api/*, /actions/*, /.well-known/sensolus-app
 │   ├── sensolus_client_api.py# outbound Sensolus REST client (cookie or apiKey)
 │   ├── models.py             # SQLAlchemy models
 │   ├── db_config.py          # PostgreSQL connection from env
@@ -72,7 +104,7 @@ my-app/
 ├── Dockerfile                # multi-stage: node build → python runtime
 ├── Jenkinsfile               # build + push to ECR
 ├── CLAUDE.md                 # guidance for Claude Code in the generated app
-├── openapi.json              # Sensolus public API spec (reference)
+├── openapi.json              # Sensolus API spec for the app's API key (downloaded, gitignored)
 └── .env.example
 ```
 
@@ -85,13 +117,13 @@ my-app/
    (`SENSOLUS_DOMAIN` env var, default `cloud.sensolus.com`) via
    `sensolus_client_api.make_sensolus_request()`, attaching whichever
    credential it has (see auth below).
-4. **App-owned endpoints** (favourites, org-stats, config, geocode) hit
+4. **App-owned endpoints** (favourites, config, geocode) hit
    PostgreSQL or third-party proxies — they never leave the Flask layer.
 
 ```
-Browser ── /api/organisations ──▶ Vite (:3000)
-                                   └─ proxy ─▶ Flask (:5000)
-                                                └─ cloud.sensolus.com/rest/api/v2/organisations
+Browser ── /api/devices/byFilter ──▶ Vite (:3000)
+                                      └─ proxy ─▶ Flask (:5000)
+                                                   └─ cloud.sensolus.com/rest/api/v2/devices/byFilter
 ```
 
 ## Authentication
@@ -115,19 +147,23 @@ current session has).
 Two endpoints require the platform's own auth, not the end user's:
 
 - `GET /.well-known/sensolus-app` — the app descriptor (from
-  `sensolus-app.yaml`): landing pages, cron jobs, DB flag, required secrets.
-- `POST /cron/*` — scheduled jobs triggered by the platform.
+  `sensolus-app.yaml`): features, environment, scheduled actions.
+- `POST /actions/*` — the scheduled actions the platform calls.
 
 Both check the `X-Sensolus-Manager-Auth` header against the
-`MANAGER_AUTH_KEY` env var. Cron endpoints additionally receive an
+`MANAGER_AUTH_KEY` env var. Action endpoints additionally receive an
 `X-Sensolus-Auth` header carrying the API key to use for that run.
 
 ### App descriptor
 
 Lives in [sensolus-app.yaml](template/sensolus-app.yaml) at the repo root —
-the single source of truth. It declares landing pages (deep-link targets),
-cron schedules, whether the app uses the database, and which secrets it
-needs (`reverseGeocoding`, etc.). The platform reads the same file twice:
+the single source of truth, in `schemaVersion: 2`. It declares the kinds of
+organisation the app is built for (`app.orgType`; the template says `normal`,
+so only a customer organisation can add it), the features it uses
+(`database`, `maps`, `reverseGeocoding`, …), the environment variables it needs
+from whoever runs it, and its scheduled actions. The Agent Manager applies
+the file and never edits it: a feature is switched on or off here, not in its
+UI. The platform reads the same file twice:
 from the git repo at registration time (its `build:` block drives the
 generated Jenkins pipeline), and at runtime via
 `GET /.well-known/sensolus-app` — the Dockerfile bakes the YAML into the
@@ -161,8 +197,10 @@ PostgreSQL 17 with PostGIS. Config comes from env (`DB_HOST`, `DB_PORT`,
 - **Migrations:** flask-migrate (Alembic) — sources in `backend/migrations/`.
   `init_db.py` creates the database on first boot (if missing) and applies
   migrations before the Flask app starts serving.
-- **Models:** `backend/models.py` — extend here; then `flask db migrate -m
-  "…"` from the `backend/` directory to generate a migration.
+- **Models:** `backend/models.py` — the template's one model is
+  `FavouriteDevice`, the devices each user starred in the Device browser.
+  Extend here; then `flask db migrate -m "…"` from the `backend/` directory to
+  generate a migration.
 
 ## Background jobs
 
@@ -171,15 +209,19 @@ Two paths, use whichever fits:
 - **APScheduler** (in-process) — decorate a function in `backend/app.py`
   with `@scheduler.task(...)` for jobs that run inside the Flask process.
   The template ships a `heartbeat` job as a working example.
-- **Platform cron** — declare the job under `cron:` in `sensolus-app.yaml`
-  and implement it as a `POST /cron/<id>` endpoint. The Sensolus platform
-  invokes it on schedule and supplies the API key via `X-Sensolus-Auth`.
-  Use this when the app needs to iterate over multiple orgs or run in a
-  different container than the web tier.
+- **Scheduled actions** — declare the action under `scheduledActions:` in
+  `sensolus-app.yaml` (its `path`, a `cadence` such as `daily`, and the
+  `role` of the key it needs, `read` or `write`) and implement it as that
+  `POST` endpoint. When an organisation adds the app, the platform creates a
+  schedule for each action at a quiet hour in the organisation's timezone,
+  which the organisation can then change, and supplies a key of that
+  organisation via `X-Sensolus-Auth` on every run. Use this for work on an
+  organisation's data: each organisation that added the app gets its own run.
 
-The template's `POST /cron/collect-org-stats` is a reference implementation:
-it fans out over all reachable orgs and snapshots tracker/user counts into
-`org_daily_stat` (idempotent per day via an `on_conflict_do_update`).
+The template's `POST /actions/daily-summary` is a reference implementation:
+it counts the organisation's devices and how many reported in the last 24
+hours, and returns the summary. Test it from the Agent Manager's Descriptor
+tab.
 
 ## Realtime
 

@@ -1,21 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
 import { SntTabs, SntTabPanel, SntDialog, SntButton, SntInput, SntPageHeader } from '@sensolus/snt-agent-kit'
 import { useLocale } from '../i18n'
-import { Overview } from './Overview'
-import { OrganisationList } from './OrganisationList'
+import { Helloworld } from './Helloworld'
+import { DeviceBrowser } from './DeviceBrowser'
 import { WidgetShowcase } from './WidgetShowcase'
 
 export function Home() {
   const { t } = useLocale()
-  const [activeTab, setActiveTab] = useState('explore')
+  const [activeTab, setActiveTab] = useState('helloworld')
   const [authReady, setAuthReady] = useState(false)
   const [hasCookieToken, setHasCookieToken] = useState(false)
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false)
   const [apiKeyInput, setApiKeyInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
-  const orgListReloadRef = useRef(null)
-  const [orgListLoading, setOrgListLoading] = useState(false)
+  const devicesReloadRef = useRef(null)
+  const [devicesLoading, setDevicesLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -73,24 +73,24 @@ export function Home() {
   }
 
   const tabs = [
-    { key: 'explore', label: t('home.tab.explore') },
-    { key: 'overview', label: t('home.tab.overview') },
+    { key: 'helloworld', label: t('home.tab.helloworld') },
     { key: 'showcase', label: t('home.tab.showcase') },
+    { key: 'devices', label: t('home.tab.devices') },
   ]
 
   const headerActions = (
     <div className="header-actions">
       {!hasCookieToken && (
         <SntButton variant="secondary" onClick={openApiKeyDialog}>
-          {t('orgList.changeApiKey')}
+          {t('auth.changeApiKey')}
         </SntButton>
       )}
-      {activeTab === 'explore' && (
+      {activeTab === 'devices' && (
         <SntButton
-          onClick={() => orgListReloadRef.current?.()}
-          disabled={orgListLoading || !authReady}
+          onClick={() => devicesReloadRef.current?.()}
+          disabled={devicesLoading || !authReady}
         >
-          {orgListLoading ? t('common.loading') : t('common.reload')}
+          {devicesLoading ? t('common.loading') : t('common.reload')}
         </SntButton>
       )}
     </div>
@@ -100,18 +100,18 @@ export function Home() {
     <div className="home-page">
       <SntPageHeader title="Sample app" actions={headerActions} />
       <SntTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab}>
-        <SntTabPanel tabKey="overview" activeTab={activeTab}>
-          <Overview authReady={authReady} />
-        </SntTabPanel>
-        <SntTabPanel tabKey="explore" activeTab={activeTab}>
-          <OrganisationList
-            authReady={authReady}
-            reloadRef={orgListReloadRef}
-            onLoadingChange={setOrgListLoading}
-          />
+        <SntTabPanel tabKey="helloworld" activeTab={activeTab}>
+          <Helloworld authReady={authReady} />
         </SntTabPanel>
         <SntTabPanel tabKey="showcase" activeTab={activeTab}>
           <WidgetShowcase />
+        </SntTabPanel>
+        <SntTabPanel tabKey="devices" activeTab={activeTab}>
+          <DeviceBrowser
+            authReady={authReady}
+            reloadRef={devicesReloadRef}
+            onLoadingChange={setDevicesLoading}
+          />
         </SntTabPanel>
       </SntTabs>
 
@@ -126,7 +126,7 @@ export function Home() {
         <p>{t('auth.dialog.description')}</p>
         <SntInput
           type="password"
-          placeholder={t('orgList.apiKeyPlaceholder')}
+          placeholder={t('auth.apiKeyPlaceholder')}
           value={apiKeyInput}
           onChange={setApiKeyInput}
           onKeyPress={(e) => {

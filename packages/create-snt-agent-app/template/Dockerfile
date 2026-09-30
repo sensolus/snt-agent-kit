@@ -51,7 +51,7 @@ ENV PYTHONUNBUFFERED=1
 #                    migrations at import; a second worker would duplicate both.
 #   --threads 8      concurrency comes from threads, matching async_mode
 #                    'threading'.
-#   --timeout 600    long-running requests (a cron job, a big proxy call) must
+#   --timeout 600    long-running requests (a scheduled action, a big proxy call) must
 #                    not be killed at gunicorn's 30s default.
 CMD ["gunicorn", "--chdir", "backend", "--workers", "1", "--threads", "8", \
      "--timeout", "600", "--access-logfile", "-", "--bind", "0.0.0.0:5000", "app:app"]

@@ -2,30 +2,20 @@ from datetime import datetime, timezone
 from extensions import db
 
 
-class FavouriteOrganisation(db.Model):
-    __tablename__ = 'favourite_organisations'
+class FavouriteDevice(db.Model):
+    """A device a user starred in the Device browser, by serial.
+
+    Keyed by user rather than organisation: the app is built for one organisation,
+    and its users each keep their own list. user_key is resolved from /loginInfo
+    (see _get_user_key in app.py).
+    """
+    __tablename__ = 'favourite_devices'
 
     id = db.Column(db.Integer, primary_key=True)
     user_key = db.Column(db.String(255), nullable=False, index=True)
-    org_id = db.Column(db.Integer, nullable=False)
+    serial = db.Column(db.String(64), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
-        db.UniqueConstraint('user_key', 'org_id', name='uq_user_org'),
-    )
-
-
-class OrgDailyStat(db.Model):
-    __tablename__ = 'org_daily_stats'
-
-    id = db.Column(db.Integer, primary_key=True)
-    org_id = db.Column(db.Integer, nullable=False, index=True)
-    org_name = db.Column(db.String(255))
-    snapshot_date = db.Column(db.Date, nullable=False, index=True)
-    tracker_count = db.Column(db.Integer, nullable=False, default=0)
-    user_count = db.Column(db.Integer, nullable=False, default=0)
-    captured_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
-
-    __table_args__ = (
-        db.UniqueConstraint('org_id', 'snapshot_date', name='uq_org_day'),
+        db.UniqueConstraint('user_key', 'serial', name='uq_user_device'),
     )

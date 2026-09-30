@@ -20,11 +20,13 @@ Note: `packages/create-snt-agent-app/template/` is the *seed* copied into a gene
 npm install                          # install all workspaces
 npm run build                        # build the kit only (vite lib build → packages/snt-agent-kit/dist/)
 npm run showcase                     # widget playground at http://localhost:3100/ (HMRs kit src)
+npm test                             # scaffolder tests (node's built-in runner, packages/create-snt-agent-app/test/)
 npm run publish:kit                  # manual publish of @sensolus/snt-agent-kit (needs NPM_TOKEN)
 npm run publish:create               # manual publish of @sensolus/create-snt-agent-app
 ```
 
-No test suite, no lint script at the repo root. Verification = `npm run build` succeeds.
+No lint script at the repo root, and no tests for the kit itself. Verification = `npm run build`
+succeeds, plus `npm test` when the scaffolder or its template changed.
 
 ## Release / publishing
 
