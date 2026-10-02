@@ -37,21 +37,8 @@ EXPOSE 5000
 
 ENV PYTHONUNBUFFERED=1
 
-# gunicorn, not `python backend/app.py`. That ran Flask's development server
-# (Werkzeug) in the container, and Flask-SocketIO refuses to start it when
-# there is no terminal attached — every scaffolded app failed to boot in the
-# Agent Manager with "The Werkzeug web server is not designed to run in
-# production" (STIC-16081). Socket.IO keeps working under gunicorn: the
-# threading async mode serves WebSocket through simple-websocket, which
-# supports gunicorn's threaded workers.
-#
-#   --chdir backend  app.py imports its siblings by bare name (db_config,
-#                    models, ...), so backend/ must be the working directory.
-#   --workers 1      APScheduler runs in-process and the bootstrap applies
-#                    migrations at import; a second worker would duplicate both.
-#   --threads 8      concurrency comes from threads, matching async_mode
-#                    'threading'.
-#   --timeout 600    long-running requests (a scheduled action, a big proxy call) must
-#                    not be killed at gunicorn's 30s default.
-CMD ["gunicorn", "--chdir", "backend", "--workers", "1", "--threads", "8", \
-     "--timeout", "600", "--access-logfile", "-", "--bind", "0.0.0.0:5000", "app:app"]
+# Every setting (chdir, workers, threads, timeout, bind, access log) lives in
+# backend/gunicorn.conf.py, which `./start-backend.sh` also uses — development
+# and production run the same server the same way, by construction. See that
+# file for the reasoning behind each value.
+CMD ["gunicorn", "-c", "backend/gunicorn.conf.py", "app:app"]

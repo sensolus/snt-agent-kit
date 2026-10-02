@@ -53,8 +53,8 @@
     {
       "label": "Start Backend",
       "type": "shell",
-      "command": "${workspaceFolder}/backend/.venv/bin/python",
-      "args": ["app.py"],
+      "command": "${workspaceFolder}/backend/.venv/bin/gunicorn",
+      "args": ["-c", "gunicorn.conf.py", "app:app"],
       "options": {
         "cwd": "${workspaceFolder}/backend"
       },

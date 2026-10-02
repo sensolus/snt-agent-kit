@@ -3,6 +3,7 @@ import sys
 import logging
 from datetime import datetime, timedelta, timezone
 from flask import Flask, request, jsonify, send_from_directory, session
+from werkzeug.exceptions import NotFound
 from flask_apscheduler import APScheduler
 from flask_socketio import SocketIO
 from flask_migrate import Migrate
@@ -156,6 +157,30 @@ def index():
 def serve_assets(filename):
     """Serve Vite build assets."""
     return send_from_directory(os.path.join(app.static_folder, 'assets'), filename)
+
+
+# Paths the backend owns. Anything under them that does not match a route above is a
+# genuine 404 and must say so: answering with the SPA shell would turn a typo'd API call
+# into a page of HTML and hide the mistake.
+_BACKEND_PREFIXES = ('api/', 'actions/', '.well-known/')
+
+
+@app.route('/<path:path>')
+def spa(path):
+    """Serve the SPA shell for React Router paths (/devices, /widgets, ...).
+
+    The router handles these in the browser, but a hard refresh, a bookmark or a shared
+    link asks the server for them first. Without this they returned 404 in the container.
+    Development never showed it: Vite serves its own fallback on :3000.
+    """
+    if path.startswith(_BACKEND_PREFIXES):
+        return jsonify({'error': 'Not found'}), 404
+    try:
+        # A real file in frontend/dist (favicon.ico, robots.txt, ...) is served as itself.
+        # send_from_directory rejects traversal out of the directory, so `path` is safe.
+        return send_from_directory(app.static_folder, path)
+    except NotFound:
+        return send_from_directory(app.static_folder, 'index.html')
 
 
 @app.route('/api/auth/check')
@@ -523,10 +548,9 @@ def bootstrap():
 
 
 # `flask db migrate` builds the app to read its models — bootstrapping there
-# would run the very migrations the command is about to write. The marker
-# lives on `extensions`, not a module global: under `python app.py` this
-# module is imported twice under two names (__main__ and app), which have
-# separate globals and would each think they were first.
+# would run the very migrations the command is about to write. The marker lives
+# on `extensions` rather than in this module's globals so that it survives this
+# module being imported under more than one name in the same process.
 _UNDER_FLASK_CLI = os.path.basename(sys.argv[0]).startswith('flask')
 import extensions  # noqa: E402
 
@@ -535,15 +559,9 @@ if not _UNDER_FLASK_CLI and not getattr(extensions, 'bootstrapped', False):
     bootstrap()
 
 
-if __name__ == '__main__':
-    # LOCAL DEVELOPMENT ONLY. In the container gunicorn serves the app — see
-    # the Dockerfile CMD. Werkzeug is acceptable here and nowhere else, which
-    # is why allow_unsafe_werkzeug is set unconditionally on this path rather
-    # than tied to FLASK_DEBUG: Flask-SocketIO refuses to start Werkzeug when
-    # stdin is not a terminal unless it is set, and a container has no
-    # terminal — tying the two together is what made the shipped image
-    # unbootable (STIC-16081).
-    debug_mode = os.getenv('FLASK_DEBUG', '0').lower() in ('1', 'true', 'yes')
-    logger.info(f"Starting dev server on port 5000 (scheduler active, debug={debug_mode})")
-    socketio.run(app, debug=debug_mode, port=5000, host='0.0.0.0',
-                 allow_unsafe_werkzeug=True, use_reloader=False)
+# There is deliberately no `if __name__ == '__main__'` block. This module is
+# never an entry point: gunicorn imports `app:app` in development and in the
+# container alike (backend/gunicorn.conf.py, which ./start-backend.sh and the
+# Dockerfile CMD both use). `python app.py` would start Flask's development
+# server, which is what shipped an unbootable image once already (STIC-16081) —
+# removing the path removes the mistake.

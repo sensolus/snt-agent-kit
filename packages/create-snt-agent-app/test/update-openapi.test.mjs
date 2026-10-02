@@ -165,7 +165,7 @@ async function closedPort() {
   return port
 }
 
-test('a new app has no openapi.json until it asks for one, and is told how', () => {
+test('--skip-openapi creates the app without a spec, and says what that costs', () => {
   const { run, app, cleanup } = scaffold('--skip-openapi')
   try {
     assert.equal(run.status, 0, run.stderr)
@@ -173,22 +173,35 @@ test('a new app has no openapi.json until it asks for one, and is told how', () 
     assert.ok(existsSync(path.join(app, 'scripts', 'update-openapi.mjs')))
     assert.match(readFileSync(path.join(app, '.gitignore'), 'utf8'), /^openapi\.json$/m)
     assert.match(readFileSync(path.join(app, '.env.example'), 'utf8'), /^SENSOLUS_API_KEY=$/m)
+    assert.match(run.stdout, /SKIPPED/, 'the summary does not let it pass unnoticed')
     assert.match(run.stdout, /node scripts\/update-openapi\.mjs/)
   } finally {
     cleanup()
   }
 })
 
-test('a download that fails still leaves a working app', async () => {
-  // The connection is refused at once, and the scaffolder carries on.
+test('no key and no terminal to ask: nothing is created', () => {
+  // spawnSync gives the child no TTY, so this is the CI case.
+  const { run, app, cleanup } = scaffold()
+  try {
+    assert.equal(run.status, 1, 'the run fails')
+    assert.match(run.stderr, /an API key is required/i)
+    assert.match(run.stderr, /--skip-openapi/, 'the deliberate way out is named')
+    assert.ok(!existsSync(app), 'no half-made app is left behind')
+  } finally {
+    cleanup()
+  }
+})
+
+test('a download that fails leaves no app behind', async () => {
+  // The connection is refused at once. Without a TTY there is nobody to re-ask, so one attempt.
   const { run, app, cleanup } = scaffold('--domain', `127.0.0.1:${await closedPort()}`, '--api-key', 'k-test')
   try {
-    assert.equal(run.status, 0, run.stderr)
+    assert.equal(run.status, 1, 'a missing spec is a failed scaffold')
     assert.match(run.stdout + run.stderr, /Could not download openapi\.json/)
     assert.match(run.stdout + run.stderr, /ECONNREFUSED/, 'the warning says why')
-    assert.ok(existsSync(path.join(app, 'sensolus-app.yaml')))
-    assert.ok(!existsSync(path.join(app, 'openapi.json')))
-    assert.ok(!existsSync(path.join(app, '.env')), 'a key that fetched nothing is not written down')
+    assert.match(run.stdout + run.stderr, /--skip-openapi/, 'and how to proceed anyway')
+    assert.ok(!existsSync(app), 'the app is removed rather than left without a spec')
   } finally {
     cleanup()
   }
@@ -198,7 +211,7 @@ test('the scaffolder takes the domain as the browser shows it', async () => {
   const port = await closedPort()
   const { run, cleanup } = scaffold('--domain', `https://127.0.0.1:${port}/`, '--api-key', 'k-test')
   try {
-    assert.equal(run.status, 0, run.stderr)
+    assert.equal(run.status, 1, run.stderr)
     assert.ok(
       (run.stdout + run.stderr).includes(`https://127.0.0.1:${port}/rest/api/v2/openapi.json could not be reached`),
       run.stdout + run.stderr,

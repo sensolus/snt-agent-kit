@@ -37,13 +37,29 @@ never commit keys.
 Run both the frontend dev server and Flask backend in separate terminals:
 
 **Terminal 1 - Backend (Flask API proxy):**
+
+Needs **Python 3.10 or newer** (the image runs 3.12; the dependency lock is
+resolved for 3.10 so an older interpreter still works).
+
 ```bash
 cd backend
 python -m venv .venv
 source .venv/bin/activate    # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-python app.py
+cd .. && ./start-backend.sh
 ```
+
+`requirements.txt` is generated and pins every package, transitive ones
+included — add or change a dependency in `requirements.in` and regenerate:
+
+```bash
+uv pip compile requirements.in --python-version 3.10 -o requirements.txt
+```
+
+This runs gunicorn with `backend/gunicorn.conf.py` — the same server and the
+same settings the container uses. There is no separate development server, so
+anything that boots here boots in the image. Restart it after a backend change;
+there is no auto-reload (that too matches production).
 
 **Terminal 2 - Frontend (Vite dev server with HMR):**
 ```bash
@@ -153,6 +169,9 @@ DB_PASSWORD=snt
 │   └── package.json           # Node dependencies
 ├── backend/                   # Flask backend
 │   ├── app.py                 # API proxy server, favourites, the daily-summary action
+│   ├── gunicorn.conf.py       # how the app is served — dev and container alike
+│   ├── requirements.in        # direct deps — the file you edit
+│   ├── requirements.txt       # generated: every package pinned, transitive included
 │   ├── models.py              # The app's own tables (favourite devices)
 │   ├── migrations/            # Alembic migrations, applied at startup
 │   └── requirements.txt       # Python deps
@@ -164,8 +183,8 @@ DB_PASSWORD=snt
 
 1. **Frontend** (React + Vite): Single-page app with React Router for navigation
 2. **Backend** (Flask): Acts as an API proxy to avoid CORS issues when calling the Sensolus API
-3. **Development**: Vite serves the frontend on `:3000` and proxies `/api/*` to Flask on `:5000`
-4. **Production**: gunicorn (see the Dockerfile `CMD`) serves the Flask app, which serves the built frontend from `frontend/dist/` and handles API requests. `python app.py` is the development server only — Flask-SocketIO refuses to start Werkzeug without a terminal, so it cannot be the container's entry point
+3. **Development**: Vite serves the frontend on `:3000` and proxies `/api/*` to gunicorn on `:5000`
+4. **Production**: the same gunicorn, same `backend/gunicorn.conf.py`, serving the built frontend from `frontend/dist/` alongside the API. Development and production differ only in who serves the frontend — there is no second web server and no development-only code path. The app is always imported as `app:app`; `python app.py` does nothing
 
 ### API Proxy Flow
 
@@ -507,7 +526,7 @@ import { SntColors } from '@sensolus/snt-agent-kit'
 
 Jenkins pipeline (`Jenkinsfile`) builds the Docker image using a multi-stage build:
 1. Node.js stage builds the React frontend
-2. Python stage runs the Flask app under gunicorn (one worker, eight threads — the scheduler and the migrations run in-process, so never more than one worker)
+2. Python stage runs the Flask app under gunicorn with `backend/gunicorn.conf.py` — one worker, eight threads, since the scheduler and the migrations run in-process. The same config file backs `./start-backend.sh`, so the two cannot drift
 
 ## License
 

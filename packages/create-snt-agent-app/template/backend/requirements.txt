@@ -1,11 +1,109 @@
+# GENERATED — do not edit. Every package is pinned, transitive ones included.
+#
+# Edit requirements.in and regenerate:
+#
+#   uv pip compile requirements.in --python-version 3.10 -o requirements.txt
+#
+# Python 3.10 is the floor. These pins were checked to install on 3.10, on 3.12
+# (what the Dockerfile runs) and on 3.13, so a developer on an older interpreter
+# than the image is not locked out.
+alembic==1.20.0
+    # via flask-migrate
+apscheduler==3.11.3
+    # via flask-apscheduler
+bidict==0.23.1
+    # via python-socketio
+blinker==1.9.0
+    # via
+    #   flask
+    #   flask-socketio
+certifi==2026.7.22
+    # via requests
+charset-normalizer==3.5.2
+    # via requests
+click==8.5.0
+    # via
+    #   flask
+    #   flask-socketio
 flask==3.1.3
+    # via
+    #   -r requirements.in
+    #   flask-apscheduler
+    #   flask-migrate
+    #   flask-socketio
+    #   flask-sqlalchemy
 flask-apscheduler==1.13.1
-flask-socketio==5.6.1
-flask-sqlalchemy==3.1.1
-SQLAlchemy==2.0.54
+    # via -r requirements.in
 flask-migrate==4.1.0
-requests==2.34.2
-python-dotenv==1.2.2
-psycopg2-binary==2.9.12
-pyyaml==6.0.3
+    # via -r requirements.in
+flask-socketio==5.6.1
+    # via -r requirements.in
+flask-sqlalchemy==3.1.1
+    # via
+    #   -r requirements.in
+    #   flask-migrate
+greenlet==3.5.6
+    # via sqlalchemy
 gunicorn==23.0.0
+    # via -r requirements.in
+h11==0.16.0
+    # via wsproto
+idna==3.20
+    # via requests
+itsdangerous==2.2.0
+    # via flask
+jinja2==3.1.6
+    # via
+    #   flask
+    #   flask-socketio
+mako==1.4.3
+    # via alembic
+markupsafe==3.0.3
+    # via
+    #   flask
+    #   jinja2
+    #   mako
+    #   werkzeug
+packaging==26.3
+    # via gunicorn
+psycopg2-binary==2.9.12
+    # via -r requirements.in
+python-dateutil==2.9.0.post0
+    # via flask-apscheduler
+python-dotenv==1.2.2
+    # via -r requirements.in
+python-engineio==4.14.0
+    # via python-socketio
+python-socketio==5.17.0
+    # via flask-socketio
+pyyaml==6.0.3
+    # via -r requirements.in
+requests==2.34.2
+    # via -r requirements.in
+simple-websocket==1.1.0
+    # via
+    #   -r requirements.in
+    #   python-engineio
+six==1.17.0
+    # via python-dateutil
+sqlalchemy==2.0.54
+    # via
+    #   -r requirements.in
+    #   alembic
+    #   flask-sqlalchemy
+tomli==2.4.1
+    # via alembic
+typing-extensions==4.16.0
+    # via
+    #   alembic
+    #   sqlalchemy
+tzlocal==5.4.4
+    # via apscheduler
+urllib3==2.8.0
+    # via requests
+werkzeug==3.1.9
+    # via
+    #   flask
+    #   flask-socketio
+wsproto==1.3.2
+    # via simple-websocket

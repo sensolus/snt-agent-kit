@@ -1,0 +1,34 @@
+# Direct backend dependencies — the only file edited by hand.
+#
+# requirements.txt next to it is generated from this one and pins EVERY package,
+# transitive ones included. Pinning only what is listed here is not enough: a
+# scaffolded app once stopped booting with `No module named 'psycopg'` because
+# flask-sqlalchemy pulled SQLAlchemy unpinned and 2.1 changed what a bare
+# `postgresql://` URL means. Twenty-six packages were floating like that.
+#
+# Python 3.10 is the floor: the lock is resolved for it, and the pins it produces
+# were checked to install on 3.12 (what the image runs) and 3.13. Resolve for the
+# floor, not for the image, so a developer on an older interpreter is not locked out.
+#
+#   uv pip compile requirements.in --python-version 3.10 -o requirements.txt
+#
+# or, with pip-tools instead of uv:
+#
+#   pip-compile requirements.in --python-version 3.10 -o requirements.txt
+
+flask==3.1.3
+flask-apscheduler==1.13.1
+flask-socketio==5.6.1
+flask-sqlalchemy==3.1.1
+SQLAlchemy==2.0.54
+flask-migrate==4.1.0
+requests==2.34.2
+python-dotenv==1.2.2
+psycopg2-binary==2.9.12
+pyyaml==6.0.3
+gunicorn==23.0.0
+
+# Flask-SocketIO serves WebSocket through this; without it the transport quietly
+# falls back to long polling. It arrives transitively, but the fallback is silent
+# enough to be worth naming.
+simple-websocket==1.1.0

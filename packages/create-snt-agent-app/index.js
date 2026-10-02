@@ -6,8 +6,12 @@
  * Files prefixed with _ are renamed to dotfiles (npm publish strips real dotfiles).
  * Then downloads openapi.json, the Sensolus API spec tailored to an API key of the
  * organisation the app is for, with the app's own scripts/update-openapi.mjs.
+ *
+ * The spec is required: an app created without one is an app whose coding agent invents
+ * endpoints its key may not call. A run that cannot get the spec creates no app at all.
+ * --skip-openapi is the one way to decline it, and has to be asked for.
  */
-import { cp, readdir, readFile, writeFile, rename, stat } from 'node:fs/promises'
+import { cp, readdir, readFile, rm, writeFile, rename, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { createInterface } from 'node:readline/promises'
@@ -29,6 +33,24 @@ const targetDir = path.resolve(process.cwd(), appName)
 
 if (existsSync(targetDir)) {
   console.error(`Error: directory ${appName} already exists.`)
+  process.exit(1)
+}
+
+// An app without openapi.json is an app whose coding agent guesses at the platform's API
+// from memory, and writes calls the app's key is not allowed to make. The spec is therefore
+// required, and the only way to decline it is to say so. Checked before anything is created,
+// so a run that cannot succeed leaves nothing behind.
+if (!options.skipOpenApi && !options.apiKey && !process.stdin.isTTY) {
+  console.error(`
+Error: an API key is required, and there is no terminal to ask for one.
+
+The platform tailors openapi.json to the key that asks for it — the endpoints the
+key's role may call, and the fields its organisation type sees. Without it the app
+is written against a spec nobody has.
+
+  --api-key <key>   download the spec for that key
+  --skip-openapi    create the app without a spec, on purpose
+`)
   process.exit(1)
 }
 
@@ -56,35 +78,68 @@ async function substitute(dir) {
 await substitute(targetDir)
 
 // openapi.json is the API spec tailored to one API key, so it is fetched for this app
-// rather than shipped in the template. Returns a line for the summary, or null.
+// rather than shipped in the template. Resolves to a line for the summary, or null when the
+// spec was declined with --skip-openapi. Throws when no spec could be had: a wrong key or a
+// mistyped domain is a typo worth retrying, but an app that silently has no spec is the
+// thing this is here to prevent.
+const MAX_ATTEMPTS = 3
+
 async function downloadOpenApi({ domain, apiKey, skipOpenApi }) {
   if (skipOpenApi) return null
-  if (!apiKey && process.stdin.isTTY) {
-    const rl = createInterface({ input: process.stdin, output: process.stdout })
-    try {
-      domain = domain || (await rl.question(`Sensolus platform domain [${DEFAULT_DOMAIN}]: `)).trim() || undefined
-      apiKey = (await rl.question('API key of the organisation this app is for, with the role the app needs, to download its API spec (Enter to skip): ')).trim() || undefined
-    } finally {
-      rl.close()
-    }
-  }
-  if (!apiKey) return null
-  // The bare host, also in .env: the app's backend builds its API URL from SENSOLUS_DOMAIN.
-  domain = normalizeDomain(domain || DEFAULT_DOMAIN)
+  // Without a terminal there is nobody to re-ask, so the key given on the command line gets
+  // one attempt. The guard above has already rejected a non-interactive run without one.
+  const interactive = process.stdin.isTTY
+  const rl = interactive ? createInterface({ input: process.stdin, output: process.stdout }) : null
+  let gaveUpOn = 'no-key' // or 'download': which of the two to say at the end
   try {
-    const { text, version } = await fetchOpenApi({ domain, apiKey })
-    await writeFile(path.join(targetDir, 'openapi.json'), text)
-    // Into .env (gitignored), so scripts/update-openapi.mjs can refresh the spec later.
-    const envExample = await readFile(path.join(targetDir, '.env.example'), 'utf8')
-    await writeFile(path.join(targetDir, '.env'),
-      setEnvValues(envExample, { SENSOLUS_DOMAIN: domain, SENSOLUS_API_KEY: apiKey }))
-    return `downloaded from ${domain} (platform release ${version || 'unknown'}); domain and key saved in .env`
-  } catch (error) {
-    console.warn(`\n⚠  Could not download openapi.json: ${error.message}\n`)
-    return null
+    for (let attempt = 1; ; attempt++) {
+      if (interactive && !apiKey) {
+        const fallback = domain || DEFAULT_DOMAIN
+        domain = (await rl.question(`Sensolus platform domain [${fallback}]: `)).trim() || fallback
+        apiKey = (await rl.question('API key of the organisation this app is for, with the role the app needs: ')).trim()
+        if (!apiKey) {
+          gaveUpOn = 'no-key'
+          console.error('   An API key is required. Press Ctrl-C and re-run with --skip-openapi to create an app without a spec.')
+        }
+      }
+      if (apiKey) {
+        try {
+          // The bare host, also in .env: the app's backend builds its API URL from SENSOLUS_DOMAIN.
+          const host = normalizeDomain(domain || DEFAULT_DOMAIN)
+          const { text, version } = await fetchOpenApi({ domain: host, apiKey })
+          await writeFile(path.join(targetDir, 'openapi.json'), text)
+          // Into .env (gitignored), so scripts/update-openapi.mjs can refresh the spec later.
+          const envExample = await readFile(path.join(targetDir, '.env.example'), 'utf8')
+          await writeFile(path.join(targetDir, '.env'),
+            setEnvValues(envExample, { SENSOLUS_DOMAIN: host, SENSOLUS_API_KEY: apiKey }))
+          return `downloaded from ${host} (platform release ${version || 'unknown'}); domain and key saved in .env`
+        } catch (error) {
+          gaveUpOn = 'download'
+          console.error(`\n⚠  Could not download openapi.json: ${error.message}`)
+          apiKey = undefined // ask again: the key or the domain is usually the thing that was wrong
+        }
+      }
+      if (!interactive || attempt >= MAX_ATTEMPTS) {
+        const after = interactive ? ` after ${MAX_ATTEMPTS} attempts` : ''
+        throw new Error(`${gaveUpOn === 'no-key' ? `No API key given${after}` : `Could not download openapi.json${after}`}.
+   The app was not created, because without the spec its coding agent would be
+   writing against an API it cannot see. Fix the key or the domain and run again,
+   or pass --skip-openapi to create the app without a spec on purpose.`)
+      }
+    }
+  } finally {
+    rl?.close()
   }
 }
-const openApi = await downloadOpenApi(options)
+
+let openApi
+try {
+  openApi = await downloadOpenApi(options)
+} catch (error) {
+  console.error(`\n✖  ${error.message}\n`)
+  await rm(targetDir, { recursive: true, force: true })
+  process.exit(1)
+}
 
 // Create Python virtual environment in backend/.venv (stdlib venv, Python 3.3+)
 const backendDir = path.join(targetDir, 'backend')
@@ -109,9 +164,9 @@ Created ${appName}/
 Next steps:
   cd ${appName}
 
-  API spec — openapi.json: ${openApi || 'not downloaded yet'}.
+  API spec — openapi.json: ${openApi || 'SKIPPED (--skip-openapi) — the app has no spec, so\n    a coding agent will be guessing at the API until you download one.'}
     It is tailored to one API key, so it is gitignored and never edited.
-    Fetch it, and refresh it after every platform release, with:
+    Refresh it after every platform release with:
       node scripts/update-openapi.mjs     # SENSOLUS_DOMAIN and SENSOLUS_API_KEY from .env
 
   Database — start a local PostgreSQL (PostGIS) with Docker Compose:
@@ -132,7 +187,7 @@ Next steps:
         cd frontend && npm install && cd ..
         backend/.venv/bin/pip install -r backend/requirements.txt
         ./start-frontend.sh    # Vite on :3000
-        ./start-backend.sh     # Flask on :5000  (separate terminal)
+        ./start-backend.sh     # gunicorn on :5000  (separate terminal)
 
 Rules: widgets/theme/i18n come from @sensolus/snt-agent-kit — import, don't copy.
 ESLint enforces no deep imports and no Snt* re-declarations.

@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.8.3
+
+### `@sensolus/snt-agent-kit`
+
+- Version bump only (publish parity).
+
+### `@sensolus/create-snt-agent-app` 0.5.1
+
+- **Fixed: a hard refresh on any route but `/` returned 404 in the container.** `/devices`, `/widgets` and every other React Router path 404'd on direct load, so a bookmark, a shared link or F5 broke the app. Development never showed it — Vite serves its own fallback on `:3000`, so the gap only existed where the Flask layer serves the built frontend. A catch-all route now returns the SPA shell, and a real file in `frontend/dist` (favicon, robots.txt) is still served as itself. Paths under `api/`, `actions/` and `.well-known/` keep returning a JSON 404 rather than the shell, so a mistyped API call still looks like a mistake instead of a page of HTML. Path traversal was checked: `send_from_directory` rejects it and the request falls through to the shell.
+- **Fixed: every scaffolded app was titled "Sensolus Organisations Dashboard"** in the browser tab — left over from before the 0.5.0 rewrite to a one-customer-organisation sample. `frontend/index.html` now uses `{{APP_NAME}}`, which the scaffolder substitutes.
+- **Every dependency is pinned, transitive ones included.** `requirements.txt` pinned its 11 direct packages but 26 more floated underneath — among them Werkzeug, `alembic` (which applies the migrations) and `APScheduler` (whose 4.x is a breaking rewrite). That is the same shape as the SQLAlchemy 2.1 break in 0.5.0, waiting to happen again.
+  - New `backend/requirements.in` holds the direct dependencies and is the only file edited by hand. `backend/requirements.txt` is generated from it and pins all 37 packages: `uv pip compile requirements.in --python-version 3.10 -o requirements.txt`.
+  - **Python 3.10 is now stated as the floor.** Nothing in the repo declared a supported version before — `FROM python:3.12-slim` in the Dockerfile was the only mention of one anywhere. The lock is resolved for 3.10 so a developer on an older interpreter than the image is not locked out, and the resulting pins were checked to install on 3.10, 3.12 and 3.13.
+  - The frontend was worse: every version was a caret range and no lock shipped, so each scaffolded app got whatever was current that day (a fresh install resolved `react` 19.3.0 against `^19.2.3`, `vite` 7.3.6 against `^7.3.1`). `frontend/package.json` now pins exact versions and ships a `package-lock.json`, so the Dockerfile's `npm ci` is reproducible.
+  - `@sensolus/snt-agent-kit` is pinned to the last **published** release (0.8.2), not the one this commit publishes — a lock cannot reference a version that is not on the registry yet. The template's kit pin and its lock therefore trail by one release and want bumping as part of the next one.
+  - Both locks were generated from an app scaffolded and booted end to end, not resolved in the abstract: `npm ci`, `npm run build` and gunicorn all verified against them.
+- **The API key is now required: a scaffolded app always has its `openapi.json`.** The scaffolder asked for a key but took Enter for an answer, warned-and-continued when the download failed, and skipped silently with no TTY. All three produced an app with no spec, and a coding agent working in it then invented endpoints the app's key may not call. The spec is no longer optional by accident:
+  - No key at the prompt → it asks again, up to three times, instead of offering `(Enter to skip)`.
+  - A refused key or an unreachable domain → it says why and asks again, up to three times. Usually a typo, so it is worth re-asking rather than failing on the first keystroke.
+  - No TTY and no `--api-key` → it stops **before copying anything**, naming both `--api-key` and `--skip-openapi`.
+  - When it does give up, the half-made app is removed and the exit status is non-zero. Previously it exited 0 with an app that could not be worked on.
+  - `--skip-openapi` is unchanged and remains the one deliberate way to decline the spec; the closing summary now says `SKIPPED` and what that costs, rather than `not downloaded yet`.
+  - This reverses two behaviours that earlier tests asserted on purpose (*"a new app has no openapi.json until it asks for one"*, *"a download that fails still leaves a working app"*). Both are rewritten, and a test covers the no-TTY guard.
+  - Note: `openapi.json` documents what a key may do, it does not enforce it — the key the app runs with in production is injected at deploy time and may have another role. This raises the floor for development; it is not a runtime permission check.
+  - The quick-start no longer says `cp .env.example .env`: a successful run always writes `.env` with the domain and key, and copying over it threw them away.
+- **Local development and the image now run the same server.** 0.8.1 put gunicorn in the container but left `python backend/app.py` (Flask's development server, Werkzeug) as the local entry point, so the two could drift apart again — exactly the gap that made STIC-16081 reach production. There is now one way to run the app:
+  - New **`backend/gunicorn.conf.py`** holds every setting (`chdir`, `workers = 1`, `threads = 8`, `timeout = 600`, `bind`, access log to stdout) with the reasoning for each. `chdir` is derived from the file's own location, so gunicorn can be launched from the repo root or from `/app`.
+  - `start-backend.sh`, the VS Code **Start Backend** task and the Dockerfile `CMD` all run `gunicorn -c gunicorn.conf.py app:app` against that one file. Changing a setting changes both environments.
+  - **The `if __name__ == '__main__'` block is gone from `app.py`**, and with it `socketio.run(...)`, `allow_unsafe_werkzeug=True` and `FLASK_DEBUG`. `app.py` is only ever imported as `app:app`; `python app.py` now does nothing. The import-time `bootstrap()` and the `flask db …` guard are unchanged.
+  - No auto-reload, matching production — restart the backend after a backend change. (Frontend HMR through Vite is unaffected.)
+  - gunicorn needs `fcntl`, so the backend runs on Linux, macOS or WSL, not native Windows. `start-backend.sh` was already bash-only.
+  - An app made from an earlier template can take the same change: add `backend/gunicorn.conf.py`, point `start-backend.sh`, `.vscode/tasks.json` and the Dockerfile `CMD` at it, and delete the `__main__` block.
+- Template README and CLAUDE.md, this package's README and the scaffolder's closing hints describe the single entry point. Fixed a stale line in this package's README that still described the image as launching `python backend/app.py`.
+
 ## 0.8.2
 
 ### `@sensolus/snt-agent-kit`

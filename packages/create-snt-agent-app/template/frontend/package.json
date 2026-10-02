@@ -15,18 +15,18 @@
     "url": "git+ssh://git@bitbucket.org/sensolus/{{APP_NAME}}.git"
   },
   "dependencies": {
-    "@sensolus/snt-agent-kit": "^0.8.0",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "react-router-dom": "^7.1.1"
+    "@sensolus/snt-agent-kit": "0.8.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-router-dom": "7.18.4"
   },
   "devDependencies": {
-    "@eslint/js": "^9.18.0",
-    "@vitejs/plugin-react": "^5.1.2",
-    "eslint": "^9.18.0",
-    "eslint-plugin-react": "^7.37.0",
-    "eslint-plugin-react-hooks": "^5.1.0",
-    "globals": "^15.14.0",
-    "vite": "^7.3.1"
+    "@eslint/js": "9.39.5",
+    "@vitejs/plugin-react": "5.2.0",
+    "eslint": "9.39.5",
+    "eslint-plugin-react": "7.37.5",
+    "eslint-plugin-react-hooks": "5.2.0",
+    "globals": "15.15.0",
+    "vite": "7.3.6"
   }
 }

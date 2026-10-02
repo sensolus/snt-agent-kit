@@ -21,11 +21,12 @@ together, how auth works, and how it deploys.
 ```bash
 npm create @sensolus/snt-agent-app my-app
 cd my-app
-cp .env.example .env             # optional — map keys (see "Runtime configuration")
+# .env already holds the domain and key the scaffolder used — edit it to add
+# the optional map keys (see "Runtime configuration"); don't copy over it.
 cd frontend && npm install && cd ..
 backend/.venv/bin/pip install -r backend/requirements.txt   # venv created by the scaffolder
 ./start-frontend.sh              # Vite on :3000
-./start-backend.sh               # Flask on :5000 (separate terminal)
+./start-backend.sh               # gunicorn on :5000 (separate terminal)
 ```
 
 Or open the folder in VS Code and run the default build task
@@ -38,7 +39,7 @@ layer, no geocoder).
 
 ### The API spec (`openapi.json`)
 
-The scaffolder asks for an API key of the organisation the app is for, and
+The scaffolder **requires** an API key of the organisation the app is for, and
 downloads the Sensolus API spec tailored to that key into `openapi.json`: only
 the endpoints the key's role, plan and organisation type can use. So give it a
 key with the role the app needs: a read-only key gives a spec without any write
@@ -49,15 +50,34 @@ refreshes the spec itself:
 node scripts/update-openapi.mjs      # after every platform release
 ```
 
+The spec is required because without it a coding agent working in the app has
+nothing to check itself against, and writes calls the app's key is not allowed
+to make. So a run that cannot get the spec **creates no app at all**:
+
+- No key typed at the prompt? It asks again, up to three times.
+- Key refused, or domain unreachable? It says why and asks again, up to three times.
+- No terminal to ask (CI, a script) and no `--api-key`? It stops before copying anything.
+
+In each case the exit status is non-zero and no half-made app is left on disk.
+
 Non-interactive, or against another platform:
 
 ```bash
 npm create @sensolus/snt-agent-app my-app -- --api-key <key> --domain dev.sensolus.com
-npm create @sensolus/snt-agent-app my-app -- --skip-openapi   # fetch it later
+npm create @sensolus/snt-agent-app my-app -- --skip-openapi   # no spec, on purpose
 ```
+
+`--skip-openapi` is the one way to decline the spec, and has to be asked for
+explicitly — it cannot be reached by pressing Enter. The app is then created
+without `openapi.json`, and the closing summary says so.
 
 `--domain` takes the host, or the platform's address as the browser shows it
 (`https://dev.sensolus.com/`): only the host is used.
+
+A caveat worth knowing: `openapi.json` **documents** what a key may do, it does
+not enforce it. The key the app runs with in production is whatever the platform
+injects at deploy time, and may have a different role from the one used here. The
+spec keeps development honest; it is not a runtime permission check.
 
 The file is gitignored and never edited by hand. Its `info.version` is the
 platform release it describes.
@@ -85,6 +105,9 @@ my-app/
 │   └── eslint.config.js      # blocks kit deep imports + Snt* re-declarations
 ├── backend/                  # Flask API + static host
 │   ├── app.py                # routes: /api/*, /actions/*, /.well-known/sensolus-app
+│   ├── gunicorn.conf.py      # how the app is served — dev and container alike
+│   ├── requirements.in       # direct deps — the file you edit
+│   ├── requirements.txt      # generated: every package pinned, transitive included
 │   ├── sensolus_client_api.py# outbound Sensolus REST client (cookie or apiKey)
 │   ├── models.py             # SQLAlchemy models
 │   ├── db_config.py          # PostgreSQL connection from env
@@ -100,7 +123,7 @@ my-app/
 │   └── tasks.json            # "Start Dev (Frontend + Backend)" build task
 ├── sensolus-app.yaml         # app descriptor — single source of truth
 ├── start-frontend.sh         # Vite dev server on :3000
-├── start-backend.sh          # Flask on :5000
+├── start-backend.sh          # gunicorn on :5000 (same config the image uses)
 ├── Dockerfile                # multi-stage: node build → python runtime
 ├── Jenkinsfile               # build + push to ECR
 ├── CLAUDE.md                 # guidance for Claude Code in the generated app
@@ -239,7 +262,12 @@ Multi-stage Dockerfile:
 2. `python:3.12-slim` — installs `backend/requirements.txt`, copies
    `backend/`, the built `frontend/dist/`, and `sensolus-app.yaml` (served at
    `/.well-known/sensolus-app`), runs as non-root user, launches
-   `python backend/app.py`.
+   `gunicorn -c backend/gunicorn.conf.py app:app`.
+
+`backend/gunicorn.conf.py` is the single source of truth for how the app is
+served, and `./start-backend.sh` uses the very same file — local development
+and the image run the same server with the same settings, so a boot failure
+shows up on a laptop rather than in the Agent Manager.
 
 The `Jenkinsfile` builds the image and pushes to ECR
 (`331708581843.dkr.ecr.eu-west-1.amazonaws.com/<app-name>`). Run

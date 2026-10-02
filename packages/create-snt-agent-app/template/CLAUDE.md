@@ -14,11 +14,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Local development (frontend + backend)
 cd frontend && npm install       # Install frontend dependencies
 cd frontend && npm run dev       # Start Vite dev server on :3000 (proxies /api to Flask)
-python backend/app.py            # Start Flask backend on :5000 (in separate terminal)
+./start-backend.sh               # Start backend on :5000 (in separate terminal)
 
 # Production build
 cd frontend && npm run build     # Build frontend to frontend/dist/
-python backend/app.py            # Serves from frontend/dist/ (dev server; the image runs gunicorn — see Dockerfile CMD)
+./start-backend.sh               # Serves from frontend/dist/
 
 # Docker build and run
 docker build -t {{APP_NAME}} .
@@ -47,9 +47,11 @@ This is a Flask + React (Vite) dashboard for querying the Sensolus public API.
 │   ├── vite.config.js     # Vite configuration
 │   ├── package.json       # Node dependencies
 │   └── eslint.config.js   # ESLint config
-├── backend/               # Flask backend
-│   ├── app.py             # Flask app (API proxy)
-│   └── requirements.txt   # Python dependencies
+├── backend/               # Flask backend (Python 3.10+; the image runs 3.12)
+│   ├── app.py             # Flask app (API proxy) — imported as `app:app`, never run directly
+│   ├── gunicorn.conf.py   # how the app is served, in dev and in the image alike
+│   ├── requirements.in    # direct deps — edit this one
+│   └── requirements.txt   # GENERATED: every package pinned. uv pip compile requirements.in --python-version 3.10 -o requirements.txt
 ├── scripts/
 │   └── update-openapi.mjs # Downloads openapi.json for this app's API key
 ├── sensolus-app.yaml      # App descriptor — single source of truth
