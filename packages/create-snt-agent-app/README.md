@@ -43,8 +43,18 @@ The scaffolder **requires** an API key of the organisation the app is for, and
 downloads the Sensolus API spec tailored to that key into `openapi.json`: only
 the endpoints the key's role, plan and organisation type can use. So give it a
 key with the role the app needs: a read-only key gives a spec without any write
-endpoint. It saves the domain and key in `.env` (gitignored), so the app
-refreshes the spec itself:
+endpoint.
+
+The key comes from the platform, on the API access page of that organisation —
+the prompt links straight to it for the domain you give:
+
+```
+https://<domain>/api-access?tabActive=accounts
+```
+
+The scaffolder saves the domain and key in `.env`, which is gitignored and must
+never be committed; anyone holding the key can act on that organisation. The app
+refreshes the spec itself from there:
 
 ```bash
 node scripts/update-openapi.mjs      # after every platform release

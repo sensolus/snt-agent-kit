@@ -95,8 +95,26 @@ async function downloadOpenApi({ domain, apiKey, skipOpenApi }) {
     for (let attempt = 1; ; attempt++) {
       if (interactive && !apiKey) {
         const fallback = domain || DEFAULT_DOMAIN
-        domain = (await rl.question(`Sensolus platform domain [${fallback}]: `)).trim() || fallback
-        apiKey = (await rl.question('API key of the organisation this app is for, with the role the app needs: ')).trim()
+        // Normalised as it is read, not only where it is used: a domain pasted from the
+        // browser would otherwise be echoed back, path and query and all, as the default
+        // on the next attempt.
+        domain = normalizeDomain((await rl.question(`Sensolus platform domain [${fallback}]: `)).trim() || fallback)
+        // The key is not something the scaffolder can invent — it is issued by the platform,
+        // and people reasonably do not know which of its pages issues one. Point at the exact
+        // page for the domain just given, rather than describing where to look.
+        console.log(`
+The API key comes from the Sensolus platform, not from this scaffolder. Open the
+API access page of the organisation this app is for and copy a key from it:
+
+  https://${normalizeDomain(domain)}/api-access?tabActive=accounts
+
+It is used to download openapi.json, the API spec tailored to that key. Give it the
+role the app needs: a read-only key produces a spec without a single write endpoint.
+
+The key is written to this app's .env, which is gitignored. It must never be
+committed — anyone with it can act on the organisation it belongs to.
+`)
+        apiKey = (await rl.question('API key: ')).trim()
         if (!apiKey) {
           gaveUpOn = 'no-key'
           console.error('   An API key is required. Press Ctrl-C and re-run with --skip-openapi to create an app without a spec.')
