@@ -258,6 +258,30 @@ def get_geozones():
     return jsonify(data), status_code
 
 
+@app.route('/api/site-maps')
+def get_site_maps():
+    """Get the site maps (floor plans) an organisation owns or has shared with it."""
+    logger.info("=== GET /api/site-maps ===")
+
+    extra_params = {}
+    org_id = request.args.get('orgId')
+    if org_id:
+        extra_params['orgId'] = org_id
+
+    data, status_code = make_sensolus_request('/site-maps', extra_params)
+
+    # image.downloadUrl is relative to the platform host; make it absolute so
+    # the browser loads it straight from Sensolus (the imageToken authorises it).
+    if status_code == 200 and isinstance(data, list):
+        platform_origin = SENSOLUS_BASE_URL.split('/rest/', 1)[0]
+        for site_map in data:
+            image = site_map.get('image') or {}
+            url = image.get('downloadUrl')
+            if url and url.startswith('/'):
+                image['downloadUrl'] = f"{platform_origin}{url}"
+    return jsonify(data), status_code
+
+
 @app.route('/api/devices/byFilter', methods=['POST'])
 def get_devices_by_filter():
     """Get devices by filter (e.g. organisation filter)."""

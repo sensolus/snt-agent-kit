@@ -15,6 +15,11 @@ const defaultApi = {
     const r = await fetch(`/api/geozones?orgId=${encodeURIComponent(orgId)}`)
     return r.ok ? r.json() : []
   },
+  fetchSiteMaps: async (orgId) => {
+    const qs = orgId != null ? `?orgId=${encodeURIComponent(orgId)}` : ''
+    const r = await fetch(`/api/site-maps${qs}`)
+    return r.ok ? r.json() : []
+  },
   geocode: async (query) => {
     const r = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`)
     return r.ok ? r.json() : []
@@ -31,7 +36,7 @@ const SntUiContext = createContext({ api: defaultApi, navigate: null })
  * Inject backend + navigation adapters into the snt-ui widget tree.
  *
  * @param {object} props
- * @param {object} [props.api]     - Override any of: fetchLoginInfo, fetchGeozones, geocode, reverseGeocode.
+ * @param {object} [props.api]     - Override any of: fetchLoginInfo, fetchGeozones, fetchSiteMaps, geocode, reverseGeocode.
  *                                   Each unspecified entry falls back to a same-origin `/api/*` call.
  * @param {function} [props.navigate] - (to: string|number) => void
  *                                   Wire to react-router-dom's useNavigate, Next.js router, etc.

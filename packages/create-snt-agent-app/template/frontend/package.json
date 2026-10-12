@@ -15,7 +15,7 @@
     "url": "git+ssh://git@bitbucket.org/sensolus/{{APP_NAME}}.git"
   },
   "dependencies": {
-    "@sensolus/snt-agent-kit": "0.8.2",
+    "@sensolus/snt-agent-kit": "0.8.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-router-dom": "7.18.4"

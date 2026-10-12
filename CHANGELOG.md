@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.9.0
+
+### `@sensolus/snt-agent-kit`
+
+- **New `SntSiteMapLayer`** — renders the organisation's site maps (floor plans, yard layouts) from the new `GET /api/v2/site-maps` endpoint inside `SntMap`, toggled together by a **Site maps** chip in the Layers control, like the platform's asset map. Each image is pinned onto its four `corners` with a CSS `matrix3d` homography, so rotated *and* skewed plans render where they were placed (the platform's 3-corner affine overlay can't express the 4th corner). Honours each site map's `opacity`; optional `floor` filter (floor-less plans show on every floor). Drawn in its own pane above the basemap and below geozones/markers.
+- **New `api.fetchSiteMaps(orgId?)` adapter** on `SntUiProvider`, defaulting to `GET /api/site-maps[?orgId=…]`.
+- New exports `SntSiteMapLayer` and `siteMapImageUrl(image)`.
+
+### `@sensolus/create-snt-agent-app` 0.6.0
+
+- **New `/api/site-maps` backend route** proxying `GET /site-maps` (optional `orgId`). It rewrites each image's relative `downloadUrl` to an absolute platform URL so the browser loads the plan straight from Sensolus — the `imageToken` authorises the download, no API key involved.
+- Template kit pin bumped 0.8.2 → 0.8.3, the last published release (pin and lock trail by one release, see 0.8.3). Scaffolded apps get `SntSiteMapLayer` once the pin moves to 0.9.0 in the next release; until then the route is there and the layer can be adopted by bumping the app's kit dependency.
+
 ## 0.8.3
 
 ### `@sensolus/snt-agent-kit`

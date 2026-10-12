@@ -85,6 +85,7 @@ once at the root.
 | `navigate` | `window.history.pushState / back` | Router integration — pass `useNavigate()` from react-router. `SntPageHeader` back button uses it. |
 | `api.fetchLoginInfo` | `GET /api/loginInfo` | `LocaleProvider` reads user language / timezone / units. |
 | `api.fetchGeozones` | `GET /api/geozones?orgId=…` | `SntMap` fetches geozones when `orgId` is set. |
+| `api.fetchSiteMaps` | `GET /api/site-maps?orgId=…` | `SntSiteMapLayer` fetches site maps when no `siteMaps` list is passed (`orgId` optional — defaults to the API key's organisation). Image `downloadUrl`s must come back absolute. |
 | `api.geocode` | `GET /api/geocode?q=…` | `SntMap` search box. |
 | `api.reverseGeocode` | `GET /api/reverse-geocode?lat=…&lng=…` | Reserved for future widgets. |
 
@@ -685,7 +686,7 @@ Vertical filter panels span **≤ 2 of the 12 page columns** (rule 13).
 Leaflet base map with Street/Satellite toggle, geocoder search, and
 top-right controls (zoom, current location, zoom-to-all). Compose by
 nesting layer children — `SntDeviceLayer`, `SntGeozoneLayer`,
-`SntMarkerClusterLayer`, or your own via `useSntMap()`.
+`SntSiteMapLayer`, `SntMarkerClusterLayer`, or your own via `useSntMap()`.
 
 **Street basemap** is the Mapbox GL vector basemap recolored at runtime
 with the Sensolus design tokens — the same basemap the Sensolus platform
@@ -761,6 +762,29 @@ function HeatLayer({ points }) {
 **`SntDeviceMap`** is a thin convenience wrapper that composes `SntMap` +
 `SntGeozoneLayer` + `SntDeviceLayer` — use it when you don't need custom
 layers.
+
+**`SntSiteMapLayer`** draws the organisation's site maps (floor plans,
+yard layouts) from `GET /api/v2/site-maps`, toggled together by one
+**Site maps** chip in the Layers control — the same switch as the
+platform's asset map. Each image is pinned by its four corners with a
+projective transform, so rotated and skewed plans land exactly where they
+were placed in the platform. Site maps sit above the basemap and below
+geozones and markers.
+
+```jsx
+<SntSiteMapLayer />                      {/* fetch via api.fetchSiteMaps() */}
+<SntSiteMapLayer orgId={orgId} floor={0} /> {/* only floor 0 + floor-less plans */}
+<SntSiteMapLayer siteMaps={siteMaps} visible={false} fitBounds />
+```
+
+Props: `siteMaps` (explicit list, skips the fetch), `orgId`, `floor`
+(omit for every floor; plans without a floor always show), `visible`
+(initial chip state, default `true`), `showSelector`, `label` (default
+`'Site maps'`), `fitBounds` (default `false`). The image's `downloadUrl`
+is relative to the platform host — the generated app's `/api/site-maps`
+route makes it absolute; a custom backend must do the same.
+`siteMapImageUrl(image)` builds the tokened image URL if you render site
+maps yourself.
 
 **`SntMarkerClusterLayer`** clusters heavy device lists — swap
 `SntDeviceLayer` for it once you cross a few hundred markers.

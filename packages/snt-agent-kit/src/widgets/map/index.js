@@ -1,6 +1,7 @@
 export { SntMap, useSntMap } from './SntMap'
 export { useLayerToggle } from './useLayerToggle'
 export { SntGeozoneLayer } from './SntGeozoneLayer'
+export { SntSiteMapLayer, siteMapImageUrl } from './SntSiteMapLayer'
 export { SntDeviceLayer, createDeviceIcon } from './SntDeviceLayer'
 export { SntMarkerClusterLayer } from './SntMarkerClusterLayer'
 export { SntDeviceMap } from './SntDeviceMap'

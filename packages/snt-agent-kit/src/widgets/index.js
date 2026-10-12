@@ -47,6 +47,8 @@ export {
   useSntMap,
   useLayerToggle,
   SntGeozoneLayer,
+  SntSiteMapLayer,
+  siteMapImageUrl,
   SntDeviceLayer,
   createDeviceIcon,
   SntMarkerClusterLayer,

@@ -14,6 +14,7 @@ import {
   SntDeviceLayer,
   SntDialog,
   SntGeozoneLayer,
+  SntSiteMapLayer,
   SntGrid,
   SntGridItem,
   SntHistogram,
@@ -1211,7 +1212,7 @@ export function WidgetShowcase() {
       {/* ------------------------------------------------------------------ */}
       <Section
         title="SntMap"
-        description="Leaflet base map with Street/Satellite toggle, geocoder search, and top-right controls (zoom, current location, zoom-to-all). Compose by nesting layer children — SntDeviceLayer, SntGeozoneLayer, SntMarkerClusterLayer, or your own custom Leaflet layer that calls useSntMap() to get the map instance and L."
+        description="Leaflet base map with Street/Satellite toggle, geocoder search, and top-right controls (zoom, current location, zoom-to-all). Compose by nesting layer children — SntDeviceLayer, SntGeozoneLayer, SntSiteMapLayer, SntMarkerClusterLayer, or your own custom Leaflet layer that calls useSntMap() to get the map instance and L."
       >
         <Example label="Devices only — SntDeviceLayer">
           <SntMap
@@ -1235,6 +1236,18 @@ export function WidgetShowcase() {
           >
             <SntGeozoneLayer geozones={DEMO_GEOZONES} fitBounds={false} />
             <SntDeviceLayer devices={DEMO_DEVICES} fitBounds={false} />
+          </SntMap>
+        </Example>
+
+        <Example label="Site maps — SntSiteMapLayer pins floor plans by their four corners; toggle them with the Site maps chip (bottom-left). Live data via the dev proxy (SENSOLUS_API_KEY in .env)">
+          <SntMap
+            mapboxKey={config.mapboxKey}
+            locationiqKey={config.locationiqKey}
+            height="420px"
+            center={[51.0481, 3.7172]}
+            zoom={20}
+          >
+            <SntSiteMapLayer />
           </SntMap>
         </Example>
 
