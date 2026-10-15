@@ -1,0 +1,15 @@
+# Python virtualenvs are built per machine; the image installs its own packages
+# from backend/requirements.txt, so a local one would only add dead weight
+# (and host-built binaries) to the build context and to /app/backend.
+**/.venv
+
+# The builder stage runs `npm ci` and then copies frontend/, so a local
+# node_modules would overwrite the clean install with whatever this machine has.
+**/node_modules
+
+# Compiled Python files: regenerated on demand, never needed in the image.
+**/__pycache__
+
+# Local secrets (API key, map keys). The container gets them as environment
+# variables, so they never belong in the build context.
+**/.env
