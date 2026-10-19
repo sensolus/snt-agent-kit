@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.9.1
+
+### `@sensolus/snt-agent-kit`
+
+- Version bump only (publish parity).
+
+### `@sensolus/create-snt-agent-app` 0.6.1
+
+- **New `.dockerignore` in scaffolded apps.** Without one, `docker build` sent everything on the developer's machine into the build:
+  - The builder stage runs `npm ci` and then `COPY frontend/ ./`, so a local `frontend/node_modules` overwrote the clean install with whatever that machine had. The image now gets exactly what `package-lock.json` specifies.
+  - `backend/.venv` and `__pycache__` folders landed in `/app/backend`. They added dead weight and host-built binaries, since the image installs its own packages from `requirements.txt`.
+  - A local `.env` (API key, map keys) was part of the build context. The container gets these as environment variables instead.
+
 ## 0.9.0
 
 ### `@sensolus/snt-agent-kit`
