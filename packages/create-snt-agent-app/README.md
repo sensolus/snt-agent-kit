@@ -251,6 +251,20 @@ Two paths, use whichever fits:
   organisation via `X-Sensolus-Auth` on every run. Use this for work on an
   organisation's data: each organisation that added the app gets its own run.
 
+Declaring a scheduled action does not schedule it. The schedule belongs to the
+organisation that adds the app, in the platform:
+
+- **No organisation has added the app → the action never runs.** The Agent
+  Manager's Descriptor tab lists the declared actions and can run one by
+  hand, but it holds no schedule and calls nothing on its own.
+- **The time is changed in the platform, per organisation**: Admin → Active
+  agents → the app → Scheduled actions. The organisation can move, pause or
+  delete it there.
+- **One run per organisation, with that organisation's key.** For a job that
+  covers several organisations at once, add the app to the one organisation
+  whose key sees them all (a partner, for example), and set `app.orgType` and
+  `role` to match.
+
 The template's `POST /actions/daily-summary` is a reference implementation:
 it counts the organisation's devices and how many reported in the last 24
 hours, and returns the summary. Test it from the Agent Manager's Descriptor

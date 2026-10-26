@@ -31,6 +31,10 @@ features:
 #     description: Base URL of the customer's ERP
 environment: {}
 
+# Declaring an action does not schedule it. The platform creates a schedule for each
+# action when an organisation adds the app, one per organisation, and that organisation
+# changes it in the platform (Admin > Active agents > the app > Scheduled actions).
+# Until an organisation adds the app, nothing runs.
 scheduledActions:
   - id: daily-summary
     path: /actions/daily-summary
