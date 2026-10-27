@@ -90,6 +90,27 @@ organisation type. It is generated, gitignored, and never edited by hand.
   no way to, the key may be read-only: ask for a key with the role the app needs and
   refresh the file, rather than concluding that the platform cannot do it.
 
+### Sending email
+
+The platform sends email for the app, from the Sensolus address: `POST /email/send` under
+`SENSOLUS_BASE_URL`, as multipart form data (`to`, `cc`, `bcc` comma-separated, `subject`,
+an HTML `body`, at most one `file` of up to 10 MB).
+
+```python
+requests.post(f"{SENSOLUS_BASE_URL}/email/send", params={'apiKey': api_key}, timeout=30,
+              files={'to': (None, to), 'subject': (None, subject), 'body': (None, html)})
+```
+
+- It needs a key with the `EMAIL_SEND` permission: in a scheduled action, `role: write`.
+  If `/email/send` is not in `openapi.json`, the key cannot send.
+- Every recipient (`to`, `cc` and `bcc`) counts against the organisation's email limits per
+  UTC day and per UTC month, shared by everything the organisation runs. Send one digest per
+  run, never one mail per device or per event.
+- 429: a limit would be passed, nothing was sent or counted. Honour `Retry-After` (seconds)
+  and never retry in a loop. 503: the mail could not be queued, nothing was counted; retry
+  later.
+- The platform adds a footer naming the organisation that sent the mail. Do not add one.
+
 ## Sensolus API Authentication
 
 The backend supports two authentication methods for the Sensolus API:

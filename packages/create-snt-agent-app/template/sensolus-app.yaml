@@ -42,7 +42,7 @@ scheduledActions:
     description: Counts the organisation's devices and how many reported in the last 24 hours
     cadence: daily         # the platform picks the moment, at night in the organisation's timezone
     timeoutSeconds: 120
-    role: read
+    role: read             # sending email (POST /email/send) needs write
 
 build:
   dockerfile: Dockerfile

@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.9.3
+
+### `@sensolus/snt-agent-kit`
+
+- Version bump only (publish parity).
+
+### `@sensolus/create-snt-agent-app` 0.6.3
+
+- **Docs: sending email from the app.** The README and the template's `CLAUDE.md` explain `POST /email/send`, which sends a mail from the Sensolus address, so an app needs no mail server of its own:
+  - The key needs the `EMAIL_SEND` permission: in a scheduled action, `role: write`, which the comment next to `role:` in `sensolus-app.yaml` now says. A `read` key gets 403.
+  - Every recipient counts against the organisation's email limits per UTC day and per UTC month, shared by everything the organisation runs, so an app sends one digest per run.
+  - 429 means a limit would be passed and nothing was sent or counted: wait for `Retry-After`. 503 means the mail could not be queued: retry later.
+  - The platform adds a footer naming the organisation that sent the mail.
+
 ## 0.9.2
 
 ### `@sensolus/snt-agent-kit`
