@@ -66,7 +66,7 @@ The sample is built for one customer organisation (`orgType: normal`). Its three
 - **Widgets** (`pages/WidgetShowcase.jsx`): every kit widget. Use these, never hand-rolled look-alikes.
 - **Device browser** (`pages/DeviceBrowser.jsx`): search the organisation's devices, pick one, see its detail and last position on the map. Favourites are this app's own data, per user, in its database (`models.py`, `migrations/`).
 
-The descriptor's one scheduled action, `POST /actions/daily-summary`, is the shape of a nightly job: the platform calls it through the Agent Manager with a read-only key of the organisation (`X-Sensolus-Auth`).
+The descriptor's one scheduled action, `POST /actions/daily-summary`, is the shape of a nightly job: the platform calls it through the Agent Manager with a read-only key of the organisation (`X-Sensolus-Auth`). Declaring an action does not schedule it: the platform creates the schedule when an organisation adds the app, one per organisation, and that organisation changes its time in the platform (Admin → Active agents → the app → Scheduled actions). No organisation has added the app = the action never runs. The Agent Manager only lists the declared actions and can run one by hand.
 
 ### App descriptor (sensolus-app.yaml)
 
@@ -89,6 +89,27 @@ organisation type. It is generated, gitignored, and never edited by hand.
   without a single write endpoint. If the app has to change something and the file offers
   no way to, the key may be read-only: ask for a key with the role the app needs and
   refresh the file, rather than concluding that the platform cannot do it.
+
+### Sending email
+
+The platform sends email for the app, from the Sensolus address: `POST /email/send` under
+`SENSOLUS_BASE_URL`, as multipart form data (`to`, `cc`, `bcc` comma-separated, `subject`,
+an HTML `body`, at most one `file` of up to 10 MB).
+
+```python
+requests.post(f"{SENSOLUS_BASE_URL}/email/send", params={'apiKey': api_key}, timeout=30,
+              files={'to': (None, to), 'subject': (None, subject), 'body': (None, html)})
+```
+
+- It needs a key with the `EMAIL_SEND` permission: in a scheduled action, `role: write`.
+  If `/email/send` is not in `openapi.json`, the key cannot send.
+- Every recipient (`to`, `cc` and `bcc`) counts against the organisation's email limits per
+  UTC day and per UTC month, shared by everything the organisation runs. Send one digest per
+  run, never one mail per device or per event.
+- 429: a limit would be passed, nothing was sent or counted. Honour `Retry-After` (seconds)
+  and never retry in a loop. 503: the mail could not be queued, nothing was counted; retry
+  later.
+- The platform adds a footer naming the organisation that sent the mail. Do not add one.
 
 ## Sensolus API Authentication
 

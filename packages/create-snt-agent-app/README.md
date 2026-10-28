@@ -251,10 +251,63 @@ Two paths, use whichever fits:
   organisation via `X-Sensolus-Auth` on every run. Use this for work on an
   organisation's data: each organisation that added the app gets its own run.
 
+Declaring a scheduled action does not schedule it. The schedule belongs to the
+organisation that adds the app, in the platform:
+
+- **No organisation has added the app → the action never runs.** The Agent
+  Manager's Descriptor tab lists the declared actions and can run one by
+  hand, but it holds no schedule and calls nothing on its own.
+- **The time is changed in the platform, per organisation**: Admin → Active
+  agents → the app → Scheduled actions. The organisation can move, pause or
+  delete it there.
+- **One run per organisation, with that organisation's key.** For a job that
+  covers several organisations at once, add the app to the one organisation
+  whose key sees them all (a partner, for example), and set `app.orgType` and
+  `role` to match.
+
 The template's `POST /actions/daily-summary` is a reference implementation:
 it counts the organisation's devices and how many reported in the last 24
 hours, and returns the summary. Test it from the Agent Manager's Descriptor
 tab.
+
+## Sending email
+
+The app sends email through the platform, from the Sensolus address, so it
+needs no mail server of its own: `POST /email/send` under
+`SENSOLUS_BASE_URL`, as multipart form data.
+
+```python
+response = requests.post(
+    f"{SENSOLUS_BASE_URL}/email/send",
+    params={'apiKey': api_key},           # e.g. the X-Sensolus-Auth key of a scheduled action
+    files={                               # multipart form fields; (None, value) = no file
+        'to': (None, 'ops@example.com'),  # comma-separated; 'cc' and 'bcc' work the same
+        'subject': (None, 'Daily summary'),
+        'body': (None, '<p>12 of 14 trackers reported in the last 24 hours.</p>'),  # HTML
+    },
+    timeout=30,
+)
+```
+
+- **The key must be allowed to send.** The call needs the `EMAIL_SEND`
+  permission. A scheduled action gets it with `role: write` in
+  `sensolus-app.yaml`; a `read` key is refused with 403. For any other key,
+  check that `/email/send` is in the `openapi.json` downloaded for it.
+- **Every recipient counts.** `to`, `cc` and `bcc` together count against the
+  organisation's limits per UTC day and per UTC month, which its plan sets.
+  All users, keys and apps of the organisation share them, so send one digest
+  per run rather than one mail per device or per event.
+- **429: wait.** When a mail would pass a limit, nothing is sent or counted.
+  The message names the limit and when it resets, and the `Retry-After`
+  header gives the seconds until then. Do not retry before that, and never in
+  a loop.
+- **503: try again later.** The mail could not be queued. Nothing was sent or
+  counted.
+- **One attachment at most**, as the `file` field, up to 10 MB. Executable
+  and script extensions (`.exe`, `.bat`, `.cmd`, `.com`, `.scr`, `.pif`,
+  `.msi`, `.js`, `.vbs`, `.wsf`, `.ps1`, `.sh`) are refused.
+- **The platform adds a footer** naming the organisation that sent the mail,
+  since it leaves from the Sensolus address. Do not add your own.
 
 ## Realtime
 
