@@ -66,7 +66,7 @@ The sample is built for one customer organisation (`orgType: normal`). Its three
 - **Widgets** (`pages/WidgetShowcase.jsx`): every kit widget. Use these, never hand-rolled look-alikes.
 - **Device browser** (`pages/DeviceBrowser.jsx`): search the organisation's devices, pick one, see its detail and last position on the map. Favourites are this app's own data, per user, in its database (`models.py`, `migrations/`).
 
-The descriptor's one scheduled action, `POST /actions/daily-summary`, is the shape of a nightly job: the platform calls it through the Agent Manager with a read-only key of the organisation (`X-Sensolus-Auth`).
+The descriptor's one scheduled action, `POST /actions/daily-summary`, is the shape of a nightly job: the platform calls it through the Agent Manager with a read-only key of the organisation (`X-Sensolus-Auth`). Declaring an action does not schedule it: the platform creates the schedule when an organisation adds the app, one per organisation, and that organisation changes its time in the platform (Admin → Active agents → the app → Scheduled actions). No organisation has added the app = the action never runs. The Agent Manager only lists the declared actions and can run one by hand.
 
 ### App descriptor (sensolus-app.yaml)
 
