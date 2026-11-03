@@ -45,6 +45,13 @@ the endpoints the key's role, plan and organisation type can use. So give it a
 key with the role the app needs: a read-only key gives a spec without any write
 endpoint.
 
+The same key's organisation type sets who may add the app: the scaffolder
+switches on that type and every type below it (partner > master > normal) under
+`app.allowedOrgTypes` in `sensolus-app.yaml`. A system key gets the same three,
+since the organisation that owns an app may add it whatever the switches say.
+Without a key, or when the platform does not say, only `normal` is on; the
+closing summary says which.
+
 The key comes from the platform, on the API access page of that organisation —
 the prompt links straight to it for the domain you give:
 
@@ -190,9 +197,10 @@ Both check the `X-Sensolus-Manager-Auth` header against the
 ### App descriptor
 
 Lives in [sensolus-app.yaml](template/sensolus-app.yaml) at the repo root —
-the single source of truth, in `schemaVersion: 2`. It declares the kinds of
-organisation the app is built for (`app.orgType`; the template says `normal`,
-so only a customer organisation can add it), the features it uses
+the single source of truth, in `schemaVersion: 2.1`. It declares the kinds of
+organisation that may add the app (`app.allowedOrgTypes`: `normal`, `master`,
+`partner`, `system`, each true or false, set by the scaffolder from the API
+key), the features it uses
 (`database`, `maps`, `reverseGeocoding`, …), the environment variables it needs
 from whoever runs it, and its scheduled actions. The Agent Manager applies
 the file and never edits it: a feature is switched on or off here, not in its
@@ -262,13 +270,52 @@ organisation that adds the app, in the platform:
   delete it there.
 - **One run per organisation, with that organisation's key.** For a job that
   covers several organisations at once, add the app to the one organisation
-  whose key sees them all (a partner, for example), and set `app.orgType` and
-  `role` to match.
+  whose key sees them all (a partner, for example), and set `app.allowedOrgTypes`
+  and `role` to match.
 
 The template's `POST /actions/daily-summary` is a reference implementation:
 it counts the organisation's devices and how many reported in the last 24
 hours, and returns the summary. Test it from the Agent Manager's Descriptor
 tab.
+
+## Sending email
+
+The app sends email through the platform, from the Sensolus address, so it
+needs no mail server of its own: `POST /email/send` under
+`SENSOLUS_BASE_URL`, as multipart form data.
+
+```python
+response = requests.post(
+    f"{SENSOLUS_BASE_URL}/email/send",
+    params={'apiKey': api_key},           # e.g. the X-Sensolus-Auth key of a scheduled action
+    files={                               # multipart form fields; (None, value) = no file
+        'to': (None, 'ops@example.com'),  # comma-separated; 'cc' and 'bcc' work the same
+        'subject': (None, 'Daily summary'),
+        'body': (None, '<p>12 of 14 trackers reported in the last 24 hours.</p>'),  # HTML
+    },
+    timeout=30,
+)
+```
+
+- **The key must be allowed to send.** The call needs the `EMAIL_SEND`
+  permission. A scheduled action gets it with `role: write` in
+  `sensolus-app.yaml`; a `read` key is refused with 403. For any other key,
+  check that `/email/send` is in the `openapi.json` downloaded for it.
+- **Every recipient counts.** `to`, `cc` and `bcc` together count against the
+  organisation's limits per UTC day and per UTC month, which its plan sets.
+  All users, keys and apps of the organisation share them, so send one digest
+  per run rather than one mail per device or per event.
+- **429: wait.** When a mail would pass a limit, nothing is sent or counted.
+  The message names the limit and when it resets, and the `Retry-After`
+  header gives the seconds until then. Do not retry before that, and never in
+  a loop.
+- **503: try again later.** The mail could not be queued. Nothing was sent or
+  counted.
+- **One attachment at most**, as the `file` field, up to 10 MB. Executable
+  and script extensions (`.exe`, `.bat`, `.cmd`, `.com`, `.scr`, `.pif`,
+  `.msi`, `.js`, `.vbs`, `.wsf`, `.ps1`, `.sh`) are refused.
+- **The platform adds a footer** naming the organisation that sent the mail,
+  since it leaves from the Sensolus address. Do not add your own.
 
 ## Realtime
 

@@ -6,6 +6,7 @@
  * Files prefixed with _ are renamed to dotfiles (npm publish strips real dotfiles).
  * Then downloads openapi.json, the Sensolus API spec tailored to an API key of the
  * organisation the app is for, with the app's own scripts/update-openapi.mjs.
+ * It also sets app.allowedOrgTypes in sensolus-app.yaml from the key's organisation type.
  *
  * The spec is required: an app created without one is an app whose coding agent invents
  * endpoints its key may not call. A run that cannot get the spec creates no app at all.
@@ -19,6 +20,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { DEFAULT_DOMAIN, fetchOpenApi, normalizeDomain, parseArgs, setEnvValues } from './template/scripts/update-openapi.mjs'
+import { allowedOrgTypesFor, fetchOrganisationType, setAllowedOrgTypes } from './org-types.mjs'
 
 const templateDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'template')
 
@@ -78,10 +80,10 @@ async function substitute(dir) {
 await substitute(targetDir)
 
 // openapi.json is the API spec tailored to one API key, so it is fetched for this app
-// rather than shipped in the template. Resolves to a line for the summary, or null when the
-// spec was declined with --skip-openapi. Throws when no spec could be had: a wrong key or a
-// mistyped domain is a typo worth retrying, but an app that silently has no spec is the
-// thing this is here to prevent.
+// rather than shipped in the template. Resolves to the summary line with the host and the
+// key it used, or null when the spec was declined with --skip-openapi. Throws when no spec
+// could be had: a wrong key or a mistyped domain is a typo worth retrying, but an app that
+// silently has no spec is the thing this is here to prevent.
 const MAX_ATTEMPTS = 3
 
 async function downloadOpenApi({ domain, apiKey, skipOpenApi }) {
@@ -130,7 +132,7 @@ committed — anyone with it can act on the organisation it belongs to.
           const envExample = await readFile(path.join(targetDir, '.env.example'), 'utf8')
           await writeFile(path.join(targetDir, '.env'),
             setEnvValues(envExample, { SENSOLUS_DOMAIN: host, SENSOLUS_API_KEY: apiKey }))
-          return `downloaded from ${host} (platform release ${version || 'unknown'}); domain and key saved in .env`
+          return { summary: `downloaded from ${host} (platform release ${version || 'unknown'}); domain and key saved in .env`, host, apiKey }
         } catch (error) {
           gaveUpOn = 'download'
           console.error(`\n⚠  Could not download openapi.json: ${error.message}`)
@@ -159,6 +161,27 @@ try {
   process.exit(1)
 }
 
+// Who may add the app follows the organisation of the key it was made with. Without a key,
+// or when the platform does not say, the template's default stays: customer organisations.
+let orgTypes = 'normal only, the template default'
+if (openApi) {
+  try {
+    const type = await fetchOrganisationType({ domain: openApi.host, apiKey: openApi.apiKey })
+    const allowed = allowedOrgTypesFor(type)
+    if (allowed) {
+      const descriptor = path.join(targetDir, 'sensolus-app.yaml')
+      await writeFile(descriptor, setAllowedOrgTypes(await readFile(descriptor, 'utf8'), allowed))
+      orgTypes = `${Object.keys(allowed).filter((t) => allowed[t]).join(', ')} (the key belongs to a ${type} organisation)`
+    } else {
+      orgTypes += ` (a key of a ${type} organisation sets none)`
+    }
+  } catch (error) {
+    orgTypes += ` (could not read the key's organisation type: ${error.message})`
+  }
+} else {
+  orgTypes += ' (no API key to read the organisation type from)'
+}
+
 // Create Python virtual environment in backend/.venv (stdlib venv, Python 3.3+)
 const backendDir = path.join(targetDir, 'backend')
 if (existsSync(backendDir)) {
@@ -182,10 +205,13 @@ Created ${appName}/
 Next steps:
   cd ${appName}
 
-  API spec — openapi.json: ${openApi || 'SKIPPED (--skip-openapi) — the app has no spec, so\n    a coding agent will be guessing at the API until you download one.'}
+  API spec — openapi.json: ${openApi?.summary || 'SKIPPED (--skip-openapi) — the app has no spec, so\n    a coding agent will be guessing at the API until you download one.'}
     It is tailored to one API key, so it is gitignored and never edited.
     Refresh it after every platform release with:
       node scripts/update-openapi.mjs     # SENSOLUS_DOMAIN and SENSOLUS_API_KEY from .env
+
+  Who may add it — app.allowedOrgTypes in sensolus-app.yaml: ${orgTypes}
+    Change the switches there if the app is for other kinds of organisation.
 
   Database — start a local PostgreSQL (PostGIS) with Docker Compose:
     docker compose -f infra/docker-compose.yml up -d

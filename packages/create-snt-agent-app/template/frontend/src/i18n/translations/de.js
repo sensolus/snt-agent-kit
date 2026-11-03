@@ -25,8 +25,6 @@ export default {
   'helloworld.partner': 'Partner',
   'helloworld.language': 'Sprache',
   'helloworld.timezone': 'Zeitzone',
-  'helloworld.notNormal':
-    'Diese App ist für eine Kundenorganisation gebaut (orgType: normal in sensolus-app.yaml). Nur eine Kundenorganisation kann sie hinzufügen; Sie sehen sie aus einer anderen Art von Organisation.',
 
   // Device browser page
   'devices.searchPlaceholder': 'Seriennummer oder Name...',
