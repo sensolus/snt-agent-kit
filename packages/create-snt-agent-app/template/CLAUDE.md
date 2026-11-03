@@ -60,7 +60,7 @@ This is a Flask + React (Vite) dashboard for querying the Sensolus public API.
 
 The backend acts as a proxy to avoid CORS issues - the frontend calls `/api/loginInfo` or `/api/devices/byFilter`, which forward to the Sensolus API.
 
-The sample is built for one customer organisation (`orgType: normal`). Its three tabs are the starting points to build from:
+The sample shows the data of the organisation that opens it. Which kinds of organisation may add the app is `app.allowedOrgTypes` in `sensolus-app.yaml`. Its three tabs are the starting points to build from:
 
 - **Hello world** (`pages/Helloworld.jsx`): who is looking and for which organisation, from `/api/loginInfo`.
 - **Widgets** (`pages/WidgetShowcase.jsx`): every kit widget. Use these, never hand-rolled look-alikes.
@@ -70,7 +70,7 @@ The descriptor's one scheduled action, `POST /actions/daily-summary`, is the sha
 
 ### App descriptor (sensolus-app.yaml)
 
-`sensolus-app.yaml` at the repo root is the single source of truth for the app manifest (schemaVersion 2: the organisation type it is built for, its features, its environment and its scheduled actions). The Agent Manager reads it from the git repo at registration time (its `build:` block drives the Jenkins pipeline), and the Dockerfile bakes it into the image so the backend serves it at `/.well-known/sensolus-app` (the `build:` block is stripped at runtime). Edit the YAML — never hardcode descriptor content in `app.py`.
+`sensolus-app.yaml` at the repo root is the single source of truth for the app manifest (schemaVersion 2.1: the kinds of organisation that may add it, its features, its environment and its scheduled actions). The Agent Manager reads it from the git repo at registration time (its `build:` block drives the Jenkins pipeline), and the Dockerfile bakes it into the image so the backend serves it at `/.well-known/sensolus-app` (the `build:` block is stripped at runtime). Edit the YAML — never hardcode descriptor content in `app.py`.
 
 ### Sensolus API spec (openapi.json)
 
@@ -89,6 +89,27 @@ organisation type. It is generated, gitignored, and never edited by hand.
   without a single write endpoint. If the app has to change something and the file offers
   no way to, the key may be read-only: ask for a key with the role the app needs and
   refresh the file, rather than concluding that the platform cannot do it.
+
+### Sending email
+
+The platform sends email for the app, from the Sensolus address: `POST /email/send` under
+`SENSOLUS_BASE_URL`, as multipart form data (`to`, `cc`, `bcc` comma-separated, `subject`,
+an HTML `body`, at most one `file` of up to 10 MB).
+
+```python
+requests.post(f"{SENSOLUS_BASE_URL}/email/send", params={'apiKey': api_key}, timeout=30,
+              files={'to': (None, to), 'subject': (None, subject), 'body': (None, html)})
+```
+
+- It needs a key with the `EMAIL_SEND` permission: in a scheduled action, `role: write`.
+  If `/email/send` is not in `openapi.json`, the key cannot send.
+- Every recipient (`to`, `cc` and `bcc`) counts against the organisation's email limits per
+  UTC day and per UTC month, shared by everything the organisation runs. Send one digest per
+  run, never one mail per device or per event.
+- 429: a limit would be passed, nothing was sent or counted. Honour `Retry-After` (seconds)
+  and never retry in a loop. 503: the mail could not be queued, nothing was counted; retry
+  later.
+- The platform adds a footer naming the organisation that sent the mail. Do not add one.
 
 ## Sensolus API Authentication
 
