@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.9.4
+
+### `@sensolus/snt-agent-kit`
+
+- Version bump only (publish parity).
+
+### `@sensolus/create-snt-agent-app` 0.7.0
+
+- **`sensolus-app.yaml` is `schemaVersion: 2.1`.** `app.allowedOrgTypes` replaces `app.orgType`: four switches, `normal`, `master`, `partner` and `system`, for the kinds of organisation that may add the app. A switch left out is false.
+- **The scaffolder sets them from the API key.** It asks the platform for the key's organisation type (`GET /api/v2/loginInfo`) and switches on that type and every type below it (partner > master > normal). A system key gets the same three as a partner key: the organisation that owns an app may add it whatever the switches say. Without a key (`--skip-openapi`), or when the platform does not say, the template default stays: `normal` only. The summary says which.
+- The Hello world page no longer warns that the app is for customer organisations only.
+- **It needs an Agent Manager that reads schemaVersion 2.1.** An older one refuses the file with "schemaVersion must be 1 or 2".
+- **Docs: sending email from the app.** The README and the template's `CLAUDE.md` explain `POST /email/send`, which sends a mail from the Sensolus address, so an app needs no mail server of its own:
+  - The key needs the `EMAIL_SEND` permission: in a scheduled action, `role: write`, which the comment next to `role:` in `sensolus-app.yaml` now says. A `read` key gets 403.
+  - Every recipient counts against the organisation's email limits per UTC day and per UTC month, shared by everything the organisation runs, so an app sends one digest per run.
+  - 429 means a limit would be passed and nothing was sent or counted: wait for `Retry-After`. 503 means the mail could not be queued: retry later.
+  - The platform adds a footer naming the organisation that sent the mail.
+- **Docs: how a scheduled action must answer.** The README, the template's `CLAUDE.md` and the comment on `timeoutSeconds` in `sensolus-app.yaml` now say:
+  - An action answers when its job is done, within its `timeoutSeconds`. The platform holds the call that long, records the job's duration and outcome, and cuts it off after that. Longer work runs in the background and answers `202`.
+  - `409` means this organisation's previous run is still going; the platform counts it as busy, not as an error. Nothing is retried.
+  - The Agent Manager no longer runs an action by hand: Run now in the platform does, exactly as a scheduled run, and shows the answer.
+- **Template: certifi 2026.10.19.** The backend's pinned CA bundle drops the revoked emSign ECC Root CA - G3 chain.
+
 ## 0.9.3
 
 ### `@sensolus/snt-agent-kit`

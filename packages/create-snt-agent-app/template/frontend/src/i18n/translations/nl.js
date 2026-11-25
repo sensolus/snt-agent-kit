@@ -25,8 +25,6 @@ export default {
   'helloworld.partner': 'Partner',
   'helloworld.language': 'Taal',
   'helloworld.timezone': 'Tijdzone',
-  'helloworld.notNormal':
-    'Deze app is gebouwd voor een klantorganisatie (orgType: normal in sensolus-app.yaml). Alleen een klantorganisatie kan haar toevoegen; u bekijkt haar vanuit een ander soort organisatie.',
 
   // Device browser page
   'devices.searchPlaceholder': 'Serienummer of naam...',

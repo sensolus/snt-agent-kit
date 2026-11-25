@@ -175,6 +175,7 @@ test('--skip-openapi creates the app without a spec, and says what that costs', 
     assert.match(readFileSync(path.join(app, '.env.example'), 'utf8'), /^SENSOLUS_API_KEY=$/m)
     assert.match(run.stdout, /SKIPPED/, 'the summary does not let it pass unnoticed')
     assert.match(run.stdout, /node scripts\/update-openapi\.mjs/)
+    assert.match(run.stdout, /app\.allowedOrgTypes in sensolus-app\.yaml: normal only, the template default \(no API key/)
   } finally {
     cleanup()
   }
