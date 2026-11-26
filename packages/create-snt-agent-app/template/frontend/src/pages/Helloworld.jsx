@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { SntCard, SntLoadingOverlay, SntMessage } from '@sensolus/snt-agent-kit'
+import { SntCard, SntLoadingOverlay } from '@sensolus/snt-agent-kit'
 import { useLocale } from '../i18n'
 
 /**
@@ -69,11 +69,6 @@ export function Helloworld({ authReady }) {
           ))}
         </div>
       </SntCard>
-      {/* sensolus-app.yaml says orgType: normal. The platform only lets a normal
-          organisation add the app; a Sensolus or partner user can still open it. */}
-      {info.organisationType && info.organisationType !== 'NORMAL' && (
-        <SntMessage variant="warning">{t('helloworld.notNormal')}</SntMessage>
-      )}
     </div>
   )
 }
